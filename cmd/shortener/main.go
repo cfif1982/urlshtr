@@ -22,7 +22,7 @@ func main() {
 	myHandler.rep.ReceivedURL = make(map[string]string)
 
 	// заполняем поля хэндлера
-	myHandler.hostIpAddr = hostIpAddr
+	myHandler.hostIPAddr = hostIpAddr
 	myHandler.hostPort = hostPort
 
 	// запускем сервер

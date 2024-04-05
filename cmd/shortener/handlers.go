@@ -12,7 +12,7 @@ import (
 // Структура для хранения хэндлера
 type MyHandler struct {
 	rep        repository.LocalDatabase
-	hostIpAddr string
+	hostIPAddr string
 	hostPort   string
 }
 
@@ -53,7 +53,7 @@ func (h MyHandler) processPostData(res http.ResponseWriter, req *http.Request) {
 	h.rep.SaveURL(uuid, string(body))
 
 	// формируем текст ответа сервера
-	answer_text := "http://" + h.hostIpAddr + ":" + h.hostPort + "/" + uuid
+	answerText := "http://" + h.hostIPAddr + ":" + h.hostPort + "/" + uuid
 
 	// Устанавливаем в заголовке тип передаваемых данных
 	res.Header().Set("Content-Type", "text/plain")
@@ -62,7 +62,7 @@ func (h MyHandler) processPostData(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusCreated)
 
 	// выводим ответ сервера
-	res.Write([]byte(answer_text))
+	res.Write([]byte(answerText))
 }
 
 // Обрабатываем данные полученные методом GET
