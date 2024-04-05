@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+
 	"github.com/cfif1982/urlshtr.git/cmd/shortener/repository"
 	"github.com/google/uuid"
 )
@@ -69,7 +71,10 @@ func (h MyHandler) processPostData(res http.ResponseWriter, req *http.Request) {
 func (h MyHandler) processGetData(res http.ResponseWriter, req *http.Request) {
 
 	// узнаем данные из полученной адресной строки
-	key := req.URL.Path[1:]
+	// key := req.URL.Path[1:]
+
+	// Узнаем key с помощью chi
+	key := chi.URLParam(req, "key")
 
 	// по ключу находим данные в БД
 	value := h.rep.GetURL(key)

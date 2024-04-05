@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -115,11 +116,20 @@ func TestProcessGetData(t *testing.T) {
 
 			// создаем запрос методом GET
 			request := httptest.NewRequest(http.MethodGet, "/"+test.dataKey, nil)
+			request.SetPathValue("key", test.dataKey)
+
 			// создаём новый Recorder
 			w := httptest.NewRecorder()
 			myHandler.processGetData(w, request)
 
 			res := w.Result()
+
+			body := "Header: \r\n"
+			for k, v := range res.Header {
+				body += fmt.Sprintf("%s: %v\r\n", k, v)
+			}
+
+			fmt.Printf("%v", body)
 
 			// получаем и проверяем тело запроса
 			defer res.Body.Close()
