@@ -120,6 +120,10 @@ func TestProcessGetData(t *testing.T) {
 			myHandler.processGetData(w, request)
 
 			res := w.Result()
+
+			// получаем и проверяем тело запроса
+			defer res.Body.Close()
+
 			// проверяем код ответа
 			assert.Equal(t, test.want.code, res.StatusCode)
 
