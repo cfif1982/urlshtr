@@ -6,7 +6,7 @@ import (
 	"github.com/cfif1982/urlshtr.git/cmd/shortener/repository"
 )
 
-var hostIpAddr = "localhost" // адрес сервера
+var hostIPAddr = "localhost" // адрес сервера
 var hostPort = "8080"        // порт сервера
 
 var myHandler MyHandler // хэндлер для обработки запросов пользлователя
@@ -22,7 +22,7 @@ func main() {
 	myHandler.rep.ReceivedURL = make(map[string]string)
 
 	// заполняем поля хэндлера
-	myHandler.hostIPAddr = hostIpAddr
+	myHandler.hostIPAddr = hostIPAddr
 	myHandler.hostPort = hostPort
 
 	// запускем сервер
@@ -41,5 +41,5 @@ func run() error {
 	mux.HandleFunc(`/`, myHandler.ServeHTTP)
 
 	// запускаем сервер
-	return http.ListenAndServe(hostIpAddr+`:`+hostPort, mux)
+	return http.ListenAndServe(hostIPAddr+`:`+hostPort, mux)
 }
