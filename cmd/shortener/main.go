@@ -26,6 +26,9 @@ func main() {
 	hostPortArg := flag.String("a", "8080", "server port")
 	baseURLArg := flag.String("b", "", "server base URL")
 
+	// делаем разбор командной строки
+	flag.Parse()
+
 	// var cfg Config
 	// err := env.Parse(&cfg)
 	// if err != nil {
@@ -37,9 +40,6 @@ func main() {
 	}
 
 	hostPort = *hostPortArg
-
-	// делаем разбор командной строки
-	flag.Parse()
 
 	// создаем хэндлер
 	myHandler = MyHandler{}
