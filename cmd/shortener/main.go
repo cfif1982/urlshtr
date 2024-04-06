@@ -23,8 +23,8 @@ var myHandler MyHandler // хэндлер для обработки запрос
 
 func main() {
 	// указываем имя флага, значение по умолчанию и описание
-	hostPort := *flag.String("a", "8080", "server port")
-	baseURLArg := *flag.String("b", "", "server base URL")
+	hostPortArg := flag.String("a", "8080", "server port")
+	baseURLArg := flag.String("b", "", "server base URL")
 
 	// var cfg Config
 	// err := env.Parse(&cfg)
@@ -32,9 +32,11 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 
-	if baseURLArg != "" {
-		baseURLArg += "/"
+	if *baseURLArg != "" {
+		hostIPAddr = "/" + *baseURLArg
 	}
+
+	hostPort = *hostPortArg
 
 	// делаем разбор командной строки
 	flag.Parse()
@@ -57,17 +59,6 @@ func main() {
 	if err := run(); err != nil {
 		panic(err)
 	}
-}
-
-var cars = map[string]string{
-	"id1": "Renault Logan",
-	"id2": "Renault Duster",
-	"id3": "BMW X6",
-	"id4": "BMW M5",
-	"id5": "VW Passat",
-	"id6": "VW Jetta",
-	"id7": "Audi A4",
-	"id8": "Audi Q7",
 }
 
 // Запуск сервера
