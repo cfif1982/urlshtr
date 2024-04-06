@@ -29,7 +29,7 @@ func TestProcessPostData(t *testing.T) {
 			requestData: "https://practicum.yandex.ru/",
 			want: want{
 				code:        http.StatusCreated,
-				response:    "http://" + hostIPAddr + ":" + hostPort + "/",
+				response:    serverBaseURL + "/",
 				headerType:  "Content-Type",
 				headerValue: "text/plain",
 			},
@@ -45,8 +45,8 @@ func TestProcessPostData(t *testing.T) {
 		myHandler.rep.ReceivedURL = make(map[string]string)
 
 		// заполняем поля хэндлера
-		myHandler.hostIPAddr = hostIPAddr
-		myHandler.hostPort = hostPort
+		myHandler.serverAddress = serverAddress
+		myHandler.serverBaseURL = serverBaseURL
 
 		t.Run(test.name, func(t *testing.T) {
 			// создаем запрос методом POST

@@ -13,9 +13,9 @@ import (
 
 // Структура для хранения хэндлера
 type MyHandler struct {
-	rep        repository.LocalDatabase
-	hostIPAddr string
-	hostPort   string
+	rep           repository.LocalDatabase
+	serverAddress string
+	serverBaseURL string
 }
 
 // Обработчик запросов от польлзователя
@@ -55,7 +55,7 @@ func (h MyHandler) processPostData(res http.ResponseWriter, req *http.Request) {
 	h.rep.SaveURL(uuid, string(body))
 
 	// формируем текст ответа сервера
-	answerText := "http://" + h.hostIPAddr + ":" + h.hostPort + "/" + uuid
+	answerText := h.serverBaseURL + "/" + uuid
 
 	// Устанавливаем в заголовке тип передаваемых данных
 	res.Header().Set("Content-Type", "text/plain")
