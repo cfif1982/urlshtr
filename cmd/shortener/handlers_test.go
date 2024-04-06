@@ -73,6 +73,26 @@ func TestProcessPostData(t *testing.T) {
 	}
 }
 
+/*
+Взял пример bp 3 инкремента по тестирванию роутера chi. Запустил в нем тест - всё ок.
+Добавил в пример в хэндлер запись Заголовка Location:
+
+rw.Header().Set("Location", "Hello")
+rw.WriteHeader(http.StatusTemporaryRedirect)
+
+в тесте пытаюсь проверить этот заголовок:
+
+assert.Equal(t, "Hello", resp.Header.Get("Location"))
+
+он его не видит при проверке((( говорит что заголовок пустой
+в чем может быть проблема?
+
+колдовал по-всякому. Пришел к такому результату: если я в хэндлере пишу io.WriteString(rw, "unknown model:1") - при тестировании этот код виден.
+А запись  rw.WriteHeader(http.StatusNotFound) - не срабатывает(( и приходит код http.StatusOK
+
+да, еще такой момент - http.Error(rw, "unknown model: ", http.StatusNotFound) - эта функция статус записывает и тест этот статус видит
+
+*/
 // func testRequest(t *testing.T, ts *httptest.Server, key string) *http.Response {
 // 	req, err := http.NewRequest(http.MethodGet, ts.URL+"/"+key, nil)
 // 	require.NoError(t, err)

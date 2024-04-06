@@ -2,16 +2,19 @@ package main
 
 import (
 	"flag"
+	"log"
 	"net/http"
+
+	"github.com/caarlos0/env/v10"
 
 	"github.com/cfif1982/urlshtr.git/cmd/shortener/repository"
 	"github.com/go-chi/chi/v5"
 )
 
-// type Config struct {
-// 	serverAddress string `env:"SERVER_ADDRESS"`
-// 	baseURL       string `env:"BASE_URL"`
-// }
+type Config struct {
+	serverAddress string `env:"SERVER_ADDRESS"`
+	baseURL       string `env:"BASE_URL"`
+}
 
 var (
 	serverAddress string // адрес сервера
@@ -28,14 +31,22 @@ func main() {
 	// делаем разбор командной строки
 	flag.Parse()
 
-	// var cfg Config
-	// err := env.Parse(&cfg)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	var cfg Config
+	err := env.Parse(&cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	serverAddress = *serverAddressArg
 	serverBaseURL = *serverBaseURLArg
+
+	if cfg.serverAddress != "" {
+		serverAddress = cfg.serverAddress
+	}
+
+	if cfg.baseURL != "" {
+		serverBaseURL = cfg.baseURL
+	}
 
 	// создаем хэндлер
 	myHandler = MyHandler{}
