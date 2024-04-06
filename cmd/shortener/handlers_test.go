@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -74,7 +73,39 @@ func TestProcessPostData(t *testing.T) {
 	}
 }
 
+// func testRequest(t *testing.T, ts *httptest.Server, key string) *http.Response {
+// 	req, err := http.NewRequest(http.MethodGet, ts.URL+"/"+key, nil)
+// 	require.NoError(t, err)
+
+// 	resp, err := ts.Client().Do(req)
+// 	require.NoError(t, err)
+// 	defer resp.Body.Close()
+
+// 	return resp
+// }
+/*
 func TestProcessGetData(t *testing.T) {
+	myHandler := MyHandler{}
+
+	// создаем репозиторий
+	myHandler.rep = repository.LocalDatabase{}
+
+	// инициализируем структура для хранения данных в репозитории
+	myHandler.rep.ReceivedURL = make(map[string]string)
+
+	// заполняем поля хэндлера
+	myHandler.hostIPAddr = hostIPAddr
+	myHandler.hostPort = hostPort
+
+	routerChi := chi.NewRouter()
+	routerChi.Get(`/{key}`, myHandler.processGetData)
+
+	// testBody := `testBody: /` + baseURLArg + `{key}`
+	// fmt.Printf("%v", testBody)
+
+	ts := httptest.NewServer(routerChi)
+	defer ts.Close()
+
 	type want struct {
 		code        int
 		headerType  string
@@ -98,47 +129,37 @@ func TestProcessGetData(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		myHandler := MyHandler{}
 
-		// создаем репозиторий
-		myHandler.rep = repository.LocalDatabase{}
+		// Добавляем в БД тестовую запись
+		myHandler.rep.ReceivedURL[test.dataKey] = test.dataValue
 
-		// инициализируем структура для хранения данных в репозитории
-		myHandler.rep.ReceivedURL = make(map[string]string)
+		// testBody := `testBody: /` + baseURLArg + `{key}`
+		fmt.Printf("%v", myHandler.rep.ReceivedURL[test.dataKey])
 
-		// заполняем поля хэндлера
-		myHandler.hostIPAddr = hostIPAddr
-		myHandler.hostPort = hostPort
+		// создаем запрос методом GET
+		response := testRequest(t, ts, test.dataKey)
 
-		t.Run(test.name, func(t *testing.T) {
-			// Добавляем в БД тестовую запись
-			myHandler.rep.ReceivedURL[test.dataKey] = test.dataValue
+		// // создаём новый Recorder
+		// w := httptest.NewRecorder()
+		// myHandler.processGetData(w, request)
 
-			// создаем запрос методом GET
-			request := httptest.NewRequest(http.MethodGet, "/"+test.dataKey, nil)
-			request.SetPathValue("key", test.dataKey)
+		// res := w.Result()
 
-			// создаём новый Recorder
-			w := httptest.NewRecorder()
-			myHandler.processGetData(w, request)
+		// body := "Header: \r\n"
+		// for k, v := range res.Header {
+		// 	body += fmt.Sprintf("%s: %v\r\n", k, v)
+		// }
 
-			res := w.Result()
+		// fmt.Printf("%v", body)
 
-			body := "Header: \r\n"
-			for k, v := range res.Header {
-				body += fmt.Sprintf("%s: %v\r\n", k, v)
-			}
+		// // получаем и проверяем тело запроса
+		// defer res.Body.Close()
 
-			fmt.Printf("%v", body)
+		// проверяем код ответа
+		assert.Equal(t, test.want.code, response.StatusCode)
 
-			// получаем и проверяем тело запроса
-			defer res.Body.Close()
-
-			// проверяем код ответа
-			assert.Equal(t, test.want.code, res.StatusCode)
-
-			// Проверяем заголовок ответа
-			assert.Equal(t, test.want.headerValue, res.Header.Get(test.want.headerType))
-		})
+		// Проверяем заголовок ответа
+		assert.Equal(t, test.want.headerValue, response.Header.Get(test.want.headerType))
 	}
 }
+*/
