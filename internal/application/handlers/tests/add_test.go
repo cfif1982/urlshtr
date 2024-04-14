@@ -54,7 +54,7 @@ func TestAddLink(t *testing.T) {
 	//********************************************************
 
 	// инициализируем роутер
-	routerChi := srv.InitRoutes(handler)
+	routerChi := internal.InitRoutes(handler)
 
 	// создаем тестовый сервер
 	ts := httptest.NewServer(routerChi)

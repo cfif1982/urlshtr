@@ -39,7 +39,7 @@ func TestGetLinkByKey(t *testing.T) {
 
 	// создаем сервер
 	// Его создаем для того, чтобы можно было получить доступ к его функциям, а не для его запуска
-	srv := new(internal.Server)
+	// srv := new(internal.Server)
 
 	// устанавливаем данные из флагов и переменных среды
 	// srv.SetServerAddress("http://localhost:8080")
@@ -53,7 +53,7 @@ func TestGetLinkByKey(t *testing.T) {
 	//********************************************************
 
 	// инициализируем роутер
-	routerChi := srv.InitRoutes(handler)
+	routerChi := internal.InitRoutes(handler)
 
 	// создаем тестовый сервер
 	ts := httptest.NewServer(routerChi)
@@ -68,7 +68,8 @@ func TestGetLinkByKey(t *testing.T) {
 			require.NoError(t, err)
 
 			// Добавляем в БД тестовую запись
-			linkRepo.AddLink(*link)
+			err = linkRepo.AddLink(*link)
+			require.NoError(t, err)
 
 			// создаем запрос методом GET
 			request, _ := http.NewRequest(http.MethodGet, ts.URL+"/"+test.dataKey, nil)
