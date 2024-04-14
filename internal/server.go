@@ -65,7 +65,7 @@ func (s *Server) Run(serverAddr string) error {
 //methods on the same type should have the same receiver name (seen 1x "h", 5x "s")
 
 // инициализируем роутер CHI
-func (h *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
+func (h *Server) InitRoutes(hr *handlers.Handler) *chi.Mux {
 
 	// 	// создаем роутер
 	// 	router := chi.NewRouter()
