@@ -11,8 +11,8 @@ import (
 
 // храним значения переменных среды
 type Config struct {
-	serverAddress string `env:"SERVER_ADDRESS"`
-	baseURL       string `env:"BASE_URL"`
+	ServerAddress string `env:"SERVER_ADDRESS"`
+	BaseURL       string `env:"BASE_URL"`
 }
 
 // глобальные переменные для настройки
@@ -44,26 +44,12 @@ func main() {
 	// базовый URL из флага
 	serverBaseURL := *serverBaseURLArg
 
-	// // если флаг не передавали, то смотрим переменную окруения
-	// if !isFlagPassed("a") {
-	// 	if cfg.serverAddress != "" {
-	// 		serverAddress = cfg.serverAddress
-	// 	}
-	// }
-
-	// // если флаг не передавали, то смотрим переменную окруения
-	// if !isFlagPassed("b") {
-	// 	if cfg.baseURL != "" {
-	// 		serverBaseURL = cfg.baseURL
-	// 	}
-	// }
-
-	if cfg.serverAddress != "" {
-		serverAddress = cfg.serverAddress
+	if cfg.ServerAddress != "" {
+		serverAddress = cfg.ServerAddress
 	}
 
-	if cfg.baseURL != "" {
-		serverBaseURL = cfg.baseURL
+	if cfg.BaseURL != "" {
+		serverBaseURL = cfg.BaseURL
 	}
 
 	// создаем сервер
@@ -73,23 +59,16 @@ func main() {
 	srv.SetServerAddress(serverAddress)
 	srv.SetServerBaseURL(serverBaseURL)
 
+	// проверяю флаг и переменную среды
 	fmt.Print("serverAddress: ")
 	fmt.Println(serverAddress)
+
+	fmt.Print("SERVER_ADDRESS: ")
+	fmt.Println(cfg.ServerAddress)
 
 	// запускаем сервер
 	if err := srv.Run(srv.ServerAddress()); err != nil {
 		log.Fatalf("error occured while running http server: %s", err.Error())
 	}
 
-}
-
-// проверяем передавали флаг или нет
-func isFlagPassed(name string) bool {
-	found := false
-	flag.Visit(func(f *flag.Flag) {
-		if f.Name == name {
-			found = true
-		}
-	})
-	return found
 }
