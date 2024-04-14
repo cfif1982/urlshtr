@@ -20,14 +20,14 @@ func (s *Server) GetServerAddress() string {
 	return s.serverAddress
 }
 
-// установить адресс сервера
-func (s *Server) SetServerAddress(addr string) {
-	s.serverAddress = addr
-}
-
 // получить базовый URL
 func (s *Server) GetServerBaseURL() string {
 	return s.serverBaseURL
+}
+
+// установить адресс сервера
+func (s *Server) SetServerAddress(addr string) {
+	s.serverAddress = addr
 }
 
 // установить базовый URL

@@ -78,9 +78,14 @@ func TestGetLinkByKey(t *testing.T) {
 			// а если меняю код на http.StatusTemporaryRedirect, то в ответе в заголовке ничего не записывается и код ответа 200
 			// в чем может быть ошибка?
 
-			// resp, err := ts.Client().Do(request)
-			_, err = ts.Client().Do(request)
+			resp, err := ts.Client().Do(request)
+			// _, err = ts.Client().Do(request)
 			require.NoError(t, err)
+
+			// получаем тело запроса
+			defer resp.Body.Close()
+			// resBody, err := io.ReadAll(resp.Body)
+			// require.NoError(t, err)
 
 			// проверяем код ответа
 			// assert.Equal(t, test.want.code, resp.StatusCode)

@@ -69,15 +69,9 @@ func TestAddLink(t *testing.T) {
 			// создаем запрос методом POST
 			request, _ := http.NewRequest(http.MethodPost, ts.URL+"/", body)
 
-			// создаём новый Recorder
-			// w := httptest.NewRecorder()
-
-			// myHandler.processPostData(w, request)
-
 			resp, err := ts.Client().Do(request)
 			require.NoError(t, err)
 
-			// res := w.Result()
 			// проверяем код ответа
 			assert.Equal(t, test.want.code, resp.StatusCode)
 
