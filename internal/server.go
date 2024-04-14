@@ -67,12 +67,13 @@ func (s *Server) Run(serverAddr string) error {
 // инициализируем роутер CHI
 func (h *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 
-	// создаем роутер
-	router := chi.NewRouter()
+	// 	// создаем роутер
+	// 	router := chi.NewRouter()
 
-	// назначаем хэндлеры для обработки запросов пользователя
-	router.Get(`/{key}`, handler.GetLinkByKey)
-	router.Post(`/`, handler.AddLink)
+	// 	// назначаем хэндлеры для обработки запросов пользователя
+	// 	router.Get(`/{key}`, handler.GetLinkByKey)
+	// 	router.Post(`/`, handler.AddLink)
 
-	return router
+	// 	return router
+	return nil
 }
