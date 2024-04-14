@@ -65,21 +65,21 @@ func (s *Server) Run(serverAddr string) error {
 //methods on the same type should have the same receiver name (seen 1x "h", 5x "s")
 
 // инициализируем роутер CHI
-func InitRoutes(handler *handlers.Handler) *chi.Mux {
-	return nil
-}
-
-// func (h *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
-
-// 	// создаем роутер
-// 	router := chi.NewRouter()
-
-// 	// назначаем хэндлеры для обработки запросов пользователя
-// 	router.Get(`/{key}`, handler.GetLinkByKey)
-// 	router.Post(`/`, handler.AddLink)
-
-// 	return router
-// 	// return nil
-// 	//"go.lintFlags": ["--fast"]
-
+// func InitRoutes(handler *handlers.Handler) *chi.Mux {
+// 	return nil
 // }
+
+func InitRoutes(handler *handlers.Handler) *chi.Mux {
+
+	// создаем роутер
+	router := chi.NewRouter()
+
+	// назначаем хэндлеры для обработки запросов пользователя
+	router.Get(`/{key}`, handler.GetLinkByKey)
+	router.Post(`/`, handler.AddLink)
+
+	return router
+	// return nil
+	//"go.lintFlags": ["--fast"]
+
+}
