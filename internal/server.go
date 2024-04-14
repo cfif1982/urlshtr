@@ -48,27 +48,13 @@ func (s *Server) Run(serverAddr string) error {
 	//********************************************************
 
 	// инициализируем роутер
-	// routerChi := s.InitRoutes(handler)
-	//**************************************************
-	// создаем роутер
-	routerChi := chi.NewRouter()
-
-	// назначаем хэндлеры для обработки запросов пользователя
-	routerChi.Get(`/{key}`, handler.GetLinkByKey)
-	routerChi.Post(`/`, handler.AddLink)
-	//**************************************************
+	routerChi := InitRoutes(handler)
 
 	// запуск сервера на нужно адресе и с нужным роутером
 	return http.ListenAndServe(serverAddr, routerChi)
 }
 
-//methods on the same type should have the same receiver name (seen 1x "h", 5x "s")
-
 // инициализируем роутер CHI
-// func InitRoutes(handler *handlers.Handler) *chi.Mux {
-// 	return nil
-// }
-
 func InitRoutes(handler *handlers.Handler) *chi.Mux {
 
 	// создаем роутер
@@ -79,7 +65,4 @@ func InitRoutes(handler *handlers.Handler) *chi.Mux {
 	router.Post(`/`, handler.AddLink)
 
 	return router
-	// return nil
-	//"go.lintFlags": ["--fast"]
-
 }

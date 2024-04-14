@@ -37,20 +37,10 @@ func TestGetLinkByKey(t *testing.T) {
 		},
 	}
 
-	// создаем сервер
-	// Его создаем для того, чтобы можно было получить доступ к его функциям, а не для его запуска
-	// srv := new(internal.Server)
-
-	// устанавливаем данные из флагов и переменных среды
-	// srv.SetServerAddress("http://localhost:8080")
-	// srv.SetServerBaseURL("http://localhost")
-
 	linkRepo := linksInfra.NewLocalRepository()
 
 	// создаем хэдлер и передаем ему нужную БД
-	// handler := handlers.NewHandler(linkRepo, srv.GetServerAddress())
 	handler := handlers.NewHandler(linkRepo, "http://localhost:8080")
-	//********************************************************
 
 	// инициализируем роутер
 	routerChi := internal.InitRoutes(handler)
@@ -80,7 +70,6 @@ func TestGetLinkByKey(t *testing.T) {
 			// в чем может быть ошибка?
 
 			resp, err := ts.Client().Do(request)
-			// _, err = ts.Client().Do(request)
 			require.NoError(t, err)
 
 			// получаем тело запроса

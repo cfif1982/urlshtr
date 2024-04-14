@@ -43,6 +43,9 @@ func (h *Handler) AddLink(rw http.ResponseWriter, req *http.Request) {
 	answerText := h.baseURL + "/" + link.Key()
 
 	// выводим ответ сервера
-	rw.Write([]byte(answerText))
+	_, err = rw.Write([]byte(answerText))
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 }

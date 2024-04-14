@@ -47,6 +47,7 @@ func TestAddLink(t *testing.T) {
 	srv.SetServerAddress("http://localhost:8080")
 	srv.SetServerBaseURL("http://localhost")
 
+	// создаем репозиторий
 	linkRepo := linksInfra.NewLocalRepository()
 
 	// создаем хэдлер и передаем ему нужную БД
@@ -64,11 +65,13 @@ func TestAddLink(t *testing.T) {
 
 		t.Run(test.name, func(t *testing.T) {
 
+			// готовим текст для передачи  в тело запроса
 			body := strings.NewReader(test.requestBody)
 
 			// создаем запрос методом POST
 			request, _ := http.NewRequest(http.MethodPost, ts.URL+"/", body)
 
+			// выполняем запрос
 			resp, err := ts.Client().Do(request)
 			require.NoError(t, err)
 
@@ -85,6 +88,8 @@ func TestAddLink(t *testing.T) {
 			testDB := linkRepo.GetDBForTest()
 			testedKey := ""
 
+			// там будет всего одна запись
+			// не знаю как получить ее без перебора цикла ((
 			for key := range *testDB {
 				testedKey = key
 			}
