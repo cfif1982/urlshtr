@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 
 	"github.com/caarlos0/env"
@@ -63,6 +64,9 @@ func main() {
 	// устанавливаем данные из флагов и переменных среды
 	srv.SetServerAddress(serverAddress)
 	srv.SetServerBaseURL(serverBaseURL)
+
+	fmt.Print("serverAddress: ")
+	fmt.Println(serverAddress)
 
 	// запускаем сервер
 	if err := srv.Run(srv.ServerAddress()); err != nil {
