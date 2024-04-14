@@ -50,7 +50,7 @@ func TestAddLink(t *testing.T) {
 	linkRepo := linksInfra.NewLocalRepository()
 
 	// создаем хэдлер и передаем ему нужную БД
-	handler := handlers.NewHandler(linkRepo, srv.GetServerAddress())
+	handler := handlers.NewHandler(linkRepo, srv.ServerAddress())
 	//********************************************************
 
 	// инициализируем роутер

@@ -16,7 +16,7 @@ type Server struct {
 }
 
 // получить адресс сервера
-func (s *Server) GetServerAddress() string {
+func (s *Server) ServerAddress() string {
 	return s.serverAddress
 }
 
