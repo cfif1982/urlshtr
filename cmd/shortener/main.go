@@ -44,18 +44,26 @@ func main() {
 	// базовый URL из флага
 	serverBaseURL := *serverBaseURLArg
 
-	// если флаг не передавали, то смотрим переменную окруения
-	if !isFlagPassed("a") {
-		if cfg.serverAddress != "" {
-			serverAddress = cfg.serverAddress
-		}
+	// // если флаг не передавали, то смотрим переменную окруения
+	// if !isFlagPassed("a") {
+	// 	if cfg.serverAddress != "" {
+	// 		serverAddress = cfg.serverAddress
+	// 	}
+	// }
+
+	// // если флаг не передавали, то смотрим переменную окруения
+	// if !isFlagPassed("b") {
+	// 	if cfg.baseURL != "" {
+	// 		serverBaseURL = cfg.baseURL
+	// 	}
+	// }
+
+	if cfg.serverAddress != "" {
+		serverAddress = cfg.serverAddress
 	}
 
-	// если флаг не передавали, то смотрим переменную окруения
-	if !isFlagPassed("b") {
-		if cfg.baseURL != "" {
-			serverBaseURL = cfg.baseURL
-		}
+	if cfg.baseURL != "" {
+		serverBaseURL = cfg.baseURL
 	}
 
 	// создаем сервер
