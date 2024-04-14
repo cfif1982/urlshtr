@@ -21,7 +21,7 @@ func (s *Server) GetServerAddress() string {
 }
 
 // получить базовый URL
-func (s *Server) GetServerBaseURL() string {
+func (s *Server) ServerBaseURL() string {
 	return s.serverBaseURL
 }
 

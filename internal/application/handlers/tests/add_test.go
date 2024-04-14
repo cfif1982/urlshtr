@@ -85,7 +85,7 @@ func TestAddLink(t *testing.T) {
 			testDB := linkRepo.GetDBForTest()
 			testedKey := ""
 
-			for key, _ := range *testDB {
+			for key := range *testDB {
 				testedKey = key
 			}
 
