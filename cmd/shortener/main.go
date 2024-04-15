@@ -59,7 +59,7 @@ func main() {
 	srv.SetServerBaseURL(serverBaseURL)
 
 	// запускаем сервер
-	if err := srv.Run(srv.ServerAddress()); err != nil {
+	if err := srv.Run(srv.GetServerAddress()); err != nil {
 		log.Fatalf("error occured while running http server: %s", err.Error())
 	}
 

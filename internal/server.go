@@ -16,12 +16,12 @@ type Server struct {
 }
 
 // получить адресс сервера
-func (s *Server) ServerAddress() string {
+func (s *Server) GetServerAddress() string {
 	return s.serverAddress
 }
 
 // получить базовый URL
-func (s *Server) ServerBaseURL() string {
+func (s *Server) GetServerBaseURL() string {
 	return s.serverBaseURL
 }
 
