@@ -63,7 +63,7 @@ func (s *Server) Run(serverAddr string) error {
 }
 
 // инициализируем роутер CHI
-func (h *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
+func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 
 	// создаем роутер
 	router := chi.NewRouter()
