@@ -48,14 +48,14 @@ func (s *Server) Run(serverAddr string) error {
 	//********************************************************
 
 	// инициализируем роутер
-	routerChi := InitRoutes(handler)
+	routerChi := s.InitRoutes(handler)
 
 	// запуск сервера на нужно адресе и с нужным роутером
 	return http.ListenAndServe(serverAddr, routerChi)
 }
 
 // инициализируем роутер CHI
-func InitRoutes(handler *handlers.Handler) *chi.Mux {
+func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 
 	// создаем роутер
 	router := chi.NewRouter()
