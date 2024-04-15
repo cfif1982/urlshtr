@@ -6,7 +6,7 @@ import "github.com/cfif1982/urlshtr.git/internal/domain/links"
 type RepositoryInterface interface {
 
 	// Добавить ссылку в БД
-	AddLink(link links.Link) error
+	AddLink(link *links.Link) error
 
 	// Найти ссылку в БД по key
 	GetLinkByKey(key string) (*links.Link, error)

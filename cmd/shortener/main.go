@@ -14,12 +14,6 @@ type Config struct {
 	BaseURL       string `env:"BASE_URL"`
 }
 
-// глобальные переменные для настройки
-// var (
-// 	serverAddress string // адрес сервера
-// 	serverBaseURL string // порт сервера
-// )
-
 func main() {
 
 	// указываем имя флага, значение по умолчанию и описание
@@ -52,11 +46,11 @@ func main() {
 	}
 
 	// создаем сервер
-	srv := new(internal.Server)
+	srv := internal.NewServer(serverAddress, serverBaseURL)
 
 	// устанавливаем данные из флагов и переменных среды
-	srv.SetServerAddress(serverAddress)
-	srv.SetServerBaseURL(serverBaseURL)
+	// srv.SetServerAddress(serverAddress)
+	// srv.SetServerBaseURL(serverBaseURL)
 
 	// запускаем сервер
 	if err := srv.Run(srv.GetServerAddress()); err != nil {

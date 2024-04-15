@@ -1,6 +1,7 @@
 module github.com/cfif1982/urlshtr.git
 
 go 1.21.9
+// go 1.22
 
 require (
 	github.com/caarlos0/env v3.5.0+incompatible

@@ -15,7 +15,7 @@ func NewLocalRepository() *LocalRepository {
 }
 
 // Добавляем ссылку в базу данных
-func (r *LocalRepository) AddLink(link links.Link) error {
+func (r *LocalRepository) AddLink(link *links.Link) error {
 
 	// проверяем - есть ли уже записm в БД с таким key
 	_, ok := r.db[link.Key()]
@@ -50,13 +50,4 @@ func (r *LocalRepository) GetLinkByKey(key string) (*links.Link, error) {
 	}
 
 	return link, nil
-}
-
-// возвращаем ссылку на БД для тестов
-// для проведения теста нужно получить результаты работы функции AddLink.
-// AddLink добавляет запись в БД. Чтобы проверить запись и получить сгенерированный key для этой запсиси,
-// добавляю функцию GetDBForTest
-// Так можно делать? Я имею в виду - добавлять в код функци, которые нужны только для тестирования
-func (r *LocalRepository) GetDBForTest() *map[string]string {
-	return &r.db
 }

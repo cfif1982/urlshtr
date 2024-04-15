@@ -27,7 +27,7 @@ func (h *Handler) AddLink(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// обращаемся к БД - сохраняем ссылку в БД
-	err = h.repo.AddLink(*link)
+	err = h.repo.AddLink(link)
 
 	if err != nil {
 		log.Fatalln(err)

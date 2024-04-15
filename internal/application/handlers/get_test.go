@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,6 +11,7 @@ import (
 	"github.com/cfif1982/urlshtr.git/internal/domain/links"
 	linksInfra "github.com/cfif1982/urlshtr.git/internal/infrastructure/links"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -62,7 +64,7 @@ func TestGetLinkByKey(t *testing.T) {
 			require.NoError(t, err)
 
 			// Добавляем в БД тестовую запись
-			err = linkRepo.AddLink(*link)
+			err = linkRepo.AddLink(link)
 			require.NoError(t, err)
 
 			// создаем запрос методом GET
@@ -72,9 +74,14 @@ func TestGetLinkByKey(t *testing.T) {
 			// Если устанавливаю в проверяемой функции GetLinkByKey код ответа http.StatusCreated - то у меня в тесте в заголовок ответа всё записывается и код ответа правильный - 201
 			// а если меняю код на http.StatusTemporaryRedirect, то в ответе в заголовке ничего не записывается и код ответа 200
 			// в чем может быть ошибка?
-
+			// resp2 := httptest.NewRecorder()
+			// routerChi.ServeHTTP(resp2, request)
 			resp, err := ts.Client().Do(request)
 			require.NoError(t, err)
+
+			hr := resp.Header.Get("Location")
+
+			fmt.Printf("Header:%v", hr)
 
 			// получаем тело запроса
 			defer resp.Body.Close()
@@ -82,7 +89,7 @@ func TestGetLinkByKey(t *testing.T) {
 			// require.NoError(t, err)
 
 			// проверяем код ответа
-			// assert.Equal(t, test.want.code, resp.StatusCode)
+			assert.Equal(t, test.want.code, resp.StatusCode)
 
 			// Проверяем заголовок ответа
 			// assert.Equal(t, test.want.headerValue, resp.Header.Get(test.want.headerType))

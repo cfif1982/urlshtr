@@ -15,6 +15,14 @@ type Server struct {
 	serverBaseURL string
 }
 
+// Конструктор Server
+func NewServer(addr string, base string) Server {
+	return Server{
+		serverAddress: addr,
+		serverBaseURL: base,
+	}
+}
+
 // получить адресс сервера
 func (s *Server) GetServerAddress() string {
 	return s.serverAddress
@@ -25,15 +33,15 @@ func (s *Server) GetServerBaseURL() string {
 	return s.serverBaseURL
 }
 
-// установить адресс сервера
-func (s *Server) SetServerAddress(addr string) {
-	s.serverAddress = addr
-}
+// // установить адресс сервера
+// func (s *Server) SetServerAddress(addr string) {
+// 	s.serverAddress = addr
+// }
 
-// установить базовый URL
-func (s *Server) SetServerBaseURL(base string) {
-	s.serverBaseURL = base
-}
+// // установить базовый URL
+// func (s *Server) SetServerBaseURL(base string) {
+// 	s.serverBaseURL = base
+// }
 
 // запуск сервера
 func (s *Server) Run(serverAddr string) error {
@@ -55,7 +63,7 @@ func (s *Server) Run(serverAddr string) error {
 }
 
 // инициализируем роутер CHI
-func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
+func (h *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 
 	// создаем роутер
 	router := chi.NewRouter()

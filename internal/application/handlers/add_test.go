@@ -41,11 +41,12 @@ func TestAddLink(t *testing.T) {
 
 	// создаем сервер
 	// Его создаем для того, чтобы можно было получить доступ к его функциям, а не для его запуска
-	srv := new(internal.Server)
+	// srv := new(internal.Server)
+	srv := internal.NewServer("http://localhost:8080", "http://localhost")
 
 	// устанавливаем данные из флагов и переменных среды
-	srv.SetServerAddress("http://localhost:8080")
-	srv.SetServerBaseURL("http://localhost")
+	// srv.SetServerAddress("http://localhost:8080")
+	// srv.SetServerBaseURL("http://localhost")
 
 	// создаем репозиторий
 	linkRepo := linksInfra.NewLocalRepository()
@@ -83,16 +84,8 @@ func TestAddLink(t *testing.T) {
 			resBody, err := io.ReadAll(resp.Body)
 			require.NoError(t, err)
 
-			// В БД должна была появиться запись.
-			// получаем ссылку на эту БД
-			testDB := linkRepo.GetDBForTest()
-			testedKey := ""
-
-			// там будет всего одна запись
-			// не знаю как получить ее без перебора цикла ((
-			for key := range *testDB {
-				testedKey = key
-			}
+			// в теле ответа должна появиться ссылка - находим в ней key
+			testedKey := string(resBody)[len(test.want.response):]
 
 			// проверяем тело запроса
 			assert.Equal(t, test.want.response+testedKey, string(resBody))
