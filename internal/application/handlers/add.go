@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"io"
-	"log"
+
 	"net/http"
 
 	"github.com/cfif1982/urlshtr.git/internal/domain/links"
@@ -11,27 +11,34 @@ import (
 // Обрабатываем запрос на добавление ссылки в БД
 func (h *Handler) AddLink(rw http.ResponseWriter, req *http.Request) {
 
+	// SugarLogger.Infow(
+	// 	"POST request received",
+	// )
+
 	// после чтения тела запроса, закрываем
 	defer req.Body.Close()
 
 	// читаем тело запроса
-	body, err := io.ReadAll(req.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// body, err := io.ReadAll(req.Body)
+	body, _ := io.ReadAll(req.Body)
+	// if err != nil {
+	// 	SugarLogger.Fatal(err)
+	// }
 
 	// обращаемся к domain - создаем объект ССЫЛКА
-	link, err := links.CreateLink(string(body))
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// link, err := links.CreateLink(string(body))
+	link, _ := links.CreateLink(string(body))
+	// if err != nil {
+	// 	SugarLogger.Fatal(err)
+	// }
 
 	// обращаемся к БД - сохраняем ссылку в БД
-	err = h.repo.AddLink(link)
+	// err = h.repo.AddLink(link)
+	_ = h.repo.AddLink(link)
 
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// if err != nil {
+	// 	SugarLogger.Fatal(err)
+	// }
 
 	// Устанавливаем в заголовке тип передаваемых данных
 	rw.Header().Set("Content-Type", "text/plain")
@@ -43,9 +50,10 @@ func (h *Handler) AddLink(rw http.ResponseWriter, req *http.Request) {
 	answerText := h.baseURL + "/" + link.Key()
 
 	// выводим ответ сервера
-	_, err = rw.Write([]byte(answerText))
-	if err != nil {
-		log.Fatalln(err)
-	}
+	// _, err = rw.Write([]byte(answerText))
+	_, _ = rw.Write([]byte(answerText))
+	// if err != nil {
+	// 	SugarLogger.Fatal(err)
+	// }
 
 }
