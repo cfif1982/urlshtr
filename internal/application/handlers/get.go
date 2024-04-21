@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -18,7 +17,7 @@ func (h *Handler) GetLinkByKey(rw http.ResponseWriter, req *http.Request) {
 
 	// Если запись не найдена в БД
 	if err != nil {
-		log.Print("link not found")
+		h.logger.Info("link not found")
 		rw.WriteHeader(http.StatusInternalServerError)
 	} else {
 

@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/cfif1982/urlshtr.git/pkg/log"
+
 	"github.com/cfif1982/urlshtr.git/internal"
 	"github.com/cfif1982/urlshtr.git/internal/application/handlers"
 	linksInfra "github.com/cfif1982/urlshtr.git/internal/infrastructure/links"
@@ -39,10 +41,13 @@ func TestAddLink(t *testing.T) {
 		},
 	}
 
+	// инициализируем логгер
+	logger, _ := log.GetLogger()
+
 	// создаем сервер
 	// Его создаем для того, чтобы можно было получить доступ к его функциям, а не для его запуска
 	// srv := new(internal.Server)
-	srv := internal.NewServer("http://localhost:8080", "http://localhost")
+	srv := internal.NewServer("http://localhost:8080", "http://localhost", logger)
 
 	// устанавливаем данные из флагов и переменных среды
 	// srv.SetServerAddress("http://localhost:8080")
@@ -52,7 +57,7 @@ func TestAddLink(t *testing.T) {
 	linkRepo := linksInfra.NewLocalRepository()
 
 	// создаем хэдлер и передаем ему нужную БД
-	handler := handlers.NewHandler(linkRepo, srv.GetServerAddress())
+	handler := handlers.NewHandler(linkRepo, srv.GetServerAddress(), logger)
 	//********************************************************
 
 	// инициализируем роутер
