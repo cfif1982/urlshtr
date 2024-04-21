@@ -1,7 +1,6 @@
 package handlers_test
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -13,6 +12,7 @@ import (
 	"github.com/cfif1982/urlshtr.git/internal/domain/links"
 	linksInfra "github.com/cfif1982/urlshtr.git/internal/infrastructure/links"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -45,8 +45,9 @@ func TestGetLinkByKey(t *testing.T) {
 
 	// создаем сервер
 	// Его создаем для того, чтобы можно было получить доступ к его функциям, а не для его запуска
-	srv := new(internal.Server)
+	srv := internal.NewServer("http://localhost:8080", "http://localhost", logger)
 
+	// создаем репозиторий
 	linkRepo := linksInfra.NewLocalRepository()
 
 	// создаем хэдлер и передаем ему нужную БД
@@ -54,9 +55,6 @@ func TestGetLinkByKey(t *testing.T) {
 
 	// инициализируем роутер
 	routerChi := srv.InitRoutes(handler)
-
-	// создаем тестовый сервер
-	ts := httptest.NewServer(routerChi)
 
 	// перебираем параметры для тестов
 	for _, test := range tests {
@@ -72,31 +70,19 @@ func TestGetLinkByKey(t *testing.T) {
 			require.NoError(t, err)
 
 			// создаем запрос методом GET
-			request, _ := http.NewRequest(http.MethodGet, ts.URL+"/"+test.dataKey, nil)
+			request, _ := http.NewRequest(http.MethodGet, "http://localhost:8080/"+test.dataKey, nil)
 
-			// вот здесь при тестировании вылезает ошибка((( так и не смог разобраться
-			// Если устанавливаю в проверяемой функции GetLinkByKey код ответа http.StatusCreated - то у меня в тесте в заголовок ответа всё записывается и код ответа правильный - 201
-			// а если меняю код на http.StatusTemporaryRedirect, то в ответе в заголовке ничего не записывается и код ответа 200
-			// в чем может быть ошибка?
-			// resp2 := httptest.NewRecorder()
-			// routerChi.ServeHTTP(resp2, request)
-			resp, err := ts.Client().Do(request)
-			require.NoError(t, err)
+			// создаем рекордер для роутера
+			rec := httptest.NewRecorder()
 
-			hr := resp.Header.Get("Location")
-
-			fmt.Printf("Header:%v", hr)
-
-			// получаем тело запроса
-			defer resp.Body.Close()
-			// resBody, err := io.ReadAll(resp.Body)
-			// require.NoError(t, err)
+			// выполняем запрос через роутер Chi
+			routerChi.ServeHTTP(rec, request)
 
 			// проверяем код ответа
-			// assert.Equal(t, test.want.code, resp.StatusCode)
+			assert.Equal(t, test.want.code, rec.Code)
 
 			// Проверяем заголовок ответа
-			// assert.Equal(t, test.want.headerValue, resp.Header.Get(test.want.headerType))
+			assert.Equal(t, test.want.headerValue, rec.Header().Get(test.want.headerType))
 
 		})
 	}

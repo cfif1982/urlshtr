@@ -98,8 +98,13 @@ func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 	// назначаем хэндлеры для обработки запросов пользователя
 	router.Get(`/{key}`, s.middlewareLogging(http.HandlerFunc(handler.GetLinkByKey)))
 	router.Post(`/`, s.middlewareLogging(http.HandlerFunc(handler.AddLink)))
+	router.Post(`/test`, s.middlewareLogging(http.HandlerFunc(TestHandler)))
 
 	return router
+}
+func TestHandler(rw http.ResponseWriter, req *http.Request) {
+	fmt.Print("test handler")
+
 }
 
 func (s *Server) middlewareLogging(h http.Handler) http.HandlerFunc {

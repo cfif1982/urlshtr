@@ -46,12 +46,7 @@ func TestAddLink(t *testing.T) {
 
 	// создаем сервер
 	// Его создаем для того, чтобы можно было получить доступ к его функциям, а не для его запуска
-	// srv := new(internal.Server)
 	srv := internal.NewServer("http://localhost:8080", "http://localhost", logger)
-
-	// устанавливаем данные из флагов и переменных среды
-	// srv.SetServerAddress("http://localhost:8080")
-	// srv.SetServerBaseURL("http://localhost")
 
 	// создаем репозиторий
 	linkRepo := linksInfra.NewLocalRepository()
@@ -63,9 +58,6 @@ func TestAddLink(t *testing.T) {
 	// инициализируем роутер
 	routerChi := srv.InitRoutes(handler)
 
-	// создаем тестовый сервер
-	ts := httptest.NewServer(routerChi)
-
 	// перебираем параметры для тестов
 	for _, test := range tests {
 
@@ -75,18 +67,21 @@ func TestAddLink(t *testing.T) {
 			body := strings.NewReader(test.requestBody)
 
 			// создаем запрос методом POST
-			request, _ := http.NewRequest(http.MethodPost, ts.URL+"/", body)
+			request, _ := http.NewRequest(http.MethodPost, "http://localhost:8080/", body)
 
-			// выполняем запрос
-			resp, err := ts.Client().Do(request)
-			require.NoError(t, err)
+			// создаем рекордер для роутера
+			rec := httptest.NewRecorder()
+
+			// выполняем запрос через роутер Chi
+			routerChi.ServeHTTP(rec, request)
 
 			// проверяем код ответа
-			assert.Equal(t, test.want.code, resp.StatusCode)
+			assert.Equal(t, test.want.code, rec.Code)
 
 			// получаем тело запроса
-			defer resp.Body.Close()
-			resBody, err := io.ReadAll(resp.Body)
+			// не зню - нужно ли здесь закрывать тело? такой функци у роутера chi нет
+			// defer rec.Body.Close()
+			resBody, err := io.ReadAll(rec.Body)
 			require.NoError(t, err)
 
 			// в теле ответа должна появиться ссылка - находим в ней key
@@ -96,7 +91,7 @@ func TestAddLink(t *testing.T) {
 			assert.Equal(t, test.want.response+testedKey, string(resBody))
 
 			// Проверяем заголовок ответа
-			assert.Equal(t, test.want.headerValue, resp.Header.Get(test.want.headerType))
+			assert.Equal(t, test.want.headerValue, rec.Header().Get(test.want.headerType))
 		})
 	}
 }
