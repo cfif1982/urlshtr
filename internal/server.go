@@ -34,18 +34,25 @@ type (
 	}
 )
 
+// переопределяем функцию Write дл получения размера записанных данных
 func (r *loggingResponseWriter) Write(b []byte) (int, error) {
 
+	// вызываем оригинальную функцию Write
 	size, err := r.ResponseWriter.Write(b)
+
+	// схраняем размер записанных данных
 	r.resData.size = size
 
 	return size, err
 }
 
+// переопределяем функцию WriteHeader для получения кода ответа
 func (r *loggingResponseWriter) WriteHeader(statusCode int) {
 
+	// вызываем оригинальную функцию WriteHeader
 	r.ResponseWriter.WriteHeader(statusCode)
 
+	// сохраняем код ответа
 	r.resData.status = statusCode
 }
 
@@ -98,27 +105,26 @@ func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 	// назначаем хэндлеры для обработки запросов пользователя
 	router.Get(`/{key}`, s.middlewareLogging(http.HandlerFunc(handler.GetLinkByKey)))
 	router.Post(`/`, s.middlewareLogging(http.HandlerFunc(handler.AddLink)))
-	router.Post(`/test`, s.middlewareLogging(http.HandlerFunc(TestHandler)))
+	router.Post(`/api/shorten`, s.middlewareLogging(http.HandlerFunc(handler.PostAddLink)))
 
 	return router
 }
-func TestHandler(rw http.ResponseWriter, req *http.Request) {
-	fmt.Print("test handler")
 
-}
-
+// middleware для логирования хэндлеров
 func (s *Server) middlewareLogging(h http.Handler) http.HandlerFunc {
 
 	logFn := func(rw http.ResponseWriter, req *http.Request) {
 
-		// апоминаем время начала обработки запроса
+		// запоминаем время начала обработки запроса
 		start := time.Now()
 
+		// создаем структуру для хранения нужных данных
 		rd := responseData{
 			status: 0,
 			size:   0,
 		}
 
+		// создаем переопределяемую структуру ResponseWriter
 		logRW := loggingResponseWriter{
 			ResponseWriter: rw,
 			resData:        &rd,
