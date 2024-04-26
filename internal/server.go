@@ -66,6 +66,7 @@ func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(middlewares.GzipCompressMiddleware)
+	router.Use(middlewares.GzipDecompressMiddleware)
 
 	// назначаем хэндлеры для обработки запросов пользователя
 	router.Get(`/{key}`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.GetLinkByKey)))
