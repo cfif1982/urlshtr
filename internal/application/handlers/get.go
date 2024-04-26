@@ -8,7 +8,6 @@ import (
 
 // Обрабатываем запрос на получение ссылки из БД по ключу
 func (h *Handler) GetLinkByKey(rw http.ResponseWriter, req *http.Request) {
-
 	// разбираем url запроса и ищем поле key
 	key := chi.URLParam(req, "key")
 
