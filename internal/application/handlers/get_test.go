@@ -72,6 +72,9 @@ func TestGetLinkByKey(t *testing.T) {
 			// создаем запрос методом GET
 			request, _ := http.NewRequest(http.MethodGet, "http://localhost:8080/"+test.dataKey, nil)
 
+			request.Header.Add("Accept-Encoding", "gzip")
+			request.Header.Add("Content-Type", "application/json")
+
 			// создаем рекордер для роутера
 			rec := httptest.NewRecorder()
 
