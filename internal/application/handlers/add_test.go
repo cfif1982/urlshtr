@@ -1,11 +1,14 @@
 package handlers_test
 
 import (
+	"bytes"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"compress/gzip"
 
 	"github.com/cfif1982/urlshtr.git/pkg/log"
 
@@ -66,8 +69,22 @@ func TestAddLink(t *testing.T) {
 			// готовим текст для передачи  в тело запроса
 			body := strings.NewReader(test.requestBody)
 
+			var b bytes.Buffer
+			w := gzip.NewWriter(&b)
+
+			_, err := w.Write([]byte(test.requestBody))
+
+			// buff := []io.Reader{b}
+
+			// body := strings.NewReader(string(b[:]))
+
+			logger.Info(b.String())
+
 			// создаем запрос методом POST
 			request, _ := http.NewRequest(http.MethodPost, "http://localhost:8080/", body)
+
+			request.Header.Add("Accept-Encoding", "gzip")
+			request.Header.Add("Content-Encoding", "gzip")
 
 			// создаем рекордер для роутера
 			rec := httptest.NewRecorder()
