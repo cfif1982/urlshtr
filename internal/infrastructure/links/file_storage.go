@@ -8,21 +8,15 @@ import (
 	"github.com/cfif1982/urlshtr.git/internal/domain/links"
 )
 
-// локальный репозиторий
+// файловый репозиторий
 type FileRepository struct {
-	// filename *os.File // файл для записи
 	fileName string
 }
 
-// Создаем локальную базу данных
+// Создаем файл для хранения БД
 func NewFileRepository(fileName string) (*FileRepository, error) {
 
-	// currentWorkingDirectory, error := os.Getwd()
-	// if error != nil {
-	// 	log.Fatal(error)
-	// }
-	// fmt.Println(currentWorkingDirectory)
-
+	// узнаем путь к файлу и назвние самого файла
 	absPathToFile, _ := filepath.Abs(fileName)
 	absPathToFolder := filepath.Dir(absPathToFile)
 
@@ -55,7 +49,6 @@ func NewFileRepository(fileName string) (*FileRepository, error) {
 
 			// после использования файла закрываем его
 			file.Close()
-
 		}
 	}
 
@@ -67,15 +60,16 @@ func NewFileRepository(fileName string) (*FileRepository, error) {
 // Добавляем ссылку в базу данных
 func (r *FileRepository) AddLink(link *links.Link) error {
 
+	// создаем БД
 	db := make(map[string]string)
 
+	// загружаем данные из файла
 	err := r.readDBFile(&db)
-
 	if err != nil {
 		return err
 	}
 
-	// проверяем - есть ли уже записm в БД с таким key
+	// проверяем - есть ли уже запись в БД с таким key
 	_, ok := db[link.Key()]
 	if ok {
 		return links.ErrKeyAlreadyExist
@@ -86,7 +80,6 @@ func (r *FileRepository) AddLink(link *links.Link) error {
 
 	// маршалим полученный объект в строку для сохранения в файле
 	data, err := json.Marshal(&db)
-
 	if err != nil {
 		return err
 	}
@@ -100,16 +93,18 @@ func (r *FileRepository) AddLink(link *links.Link) error {
 // находим ссылку в БД по ключу
 func (r *FileRepository) GetLinkByKey(key string) (*links.Link, error) {
 
+	// создаем БД
 	db := make(map[string]string)
 
+	// загружаем данные из файла
 	err := r.readDBFile(&db)
-
 	if err != nil {
 		return nil, err
 	}
 
+	// пробегаемся по БД и ищем нужную ссылку
 	for k, v := range db {
-
+		// если ссылка найдена, то возвращаем ее
 		if k == key {
 			link, err := links.NewLink(k, v)
 			if err != nil {
@@ -117,21 +112,25 @@ func (r *FileRepository) GetLinkByKey(key string) (*links.Link, error) {
 			}
 			return link, nil
 		}
-
 	}
 
+	// если ссылка не найдена, то возвращаем ошибку
 	return nil, links.ErrLinkNotFound
 
 }
 
+// читаем файл БД
 func (r *FileRepository) readDBFile(db *map[string]string) error {
 
+	// читаем данные из файла
 	data, err := os.ReadFile(r.fileName)
 	if err != nil {
 		return err
 	}
 
+	// если файл пустой, то ничего не делаем
 	if len(data) != 0 {
+		// анмаршалим данные в БД
 		err = json.Unmarshal(data, db)
 		if err != nil {
 			return err
@@ -139,5 +138,4 @@ func (r *FileRepository) readDBFile(db *map[string]string) error {
 	}
 
 	return nil
-
 }
