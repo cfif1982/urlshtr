@@ -14,17 +14,19 @@ import (
 
 // структура сервера. Храним передаваемые параметры при запуске программы
 type Server struct {
-	serverAddress string
-	serverBaseURL string
-	logger        *log.Logger
+	serverAddress   string
+	serverBaseURL   string
+	FileStoragePath string
+	logger          *log.Logger
 }
 
 // Конструктор Server
-func NewServer(addr string, base string, logger *log.Logger) Server {
+func NewServer(addr string, base string, storage string, logger *log.Logger) Server {
 	return Server{
-		serverAddress: addr,
-		serverBaseURL: base,
-		logger:        logger,
+		serverAddress:   addr,
+		serverBaseURL:   base,
+		FileStoragePath: storage,
+		logger:          logger,
 	}
 }
 
@@ -43,11 +45,25 @@ func (s *Server) Run(serverAddr string) error {
 
 	// Dependency Injection
 	//********************************************************
-	// Создаем репозиторий для работы с БД. Здесь можно изменить БД и выбратьдругую тенологию
-	linkRepo := linksInfra.NewLocalRepository()
+	// Создаем репозиторий для работы с БД. Здесь можно изменить БД и выбрать другую тенологию
+	// Если указан файл , то база данных х файлов
 
-	// создаем хндлер и передаем ему нужную БД
-	handler := handlers.NewHandler(linkRepo, s.serverBaseURL, s.logger)
+	var handler *handlers.Handler
+
+	if s.FileStoragePath == "" {
+		linkRepo := linksInfra.NewLocalRepository()
+		// создаем хндлер и передаем ему нужную БД
+		handler = handlers.NewHandler(linkRepo, s.serverBaseURL, s.logger)
+	} else {
+		linkRepo, err := linksInfra.NewFileRepository(s.FileStoragePath)
+
+		if err != nil {
+			s.logger.Fatal("can't initialize storage file: " + err.Error())
+		}
+		// создаем хндлер и передаем ему нужную БД
+		handler = handlers.NewHandler(linkRepo, s.serverBaseURL, s.logger)
+	}
+
 	//********************************************************
 
 	// инициализируем роутер

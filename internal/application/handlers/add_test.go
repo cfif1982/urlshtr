@@ -46,7 +46,7 @@ func TestAddLink(t *testing.T) {
 
 	// создаем сервер
 	// Его создаем для того, чтобы можно было получить доступ к его функциям, а не для его запуска
-	srv := internal.NewServer("http://localhost:8080", "http://localhost", logger)
+	srv := internal.NewServer("http://localhost:8080", "http://localhost", "", logger)
 
 	// создаем репозиторий
 	linkRepo := linksInfra.NewLocalRepository()
