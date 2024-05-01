@@ -81,8 +81,7 @@ func TestPostAddLink(t *testing.T) {
 			assert.Equal(t, test.want.code, rec.Code)
 
 			// получаем тело запроса
-			// не зню - нужно ли здесь закрывать тело? такой функци у роутера chi нет
-			// defer rec.Body.Close()
+			defer request.Body.Close()
 			resBody, err := io.ReadAll(rec.Body)
 			require.NoError(t, err)
 

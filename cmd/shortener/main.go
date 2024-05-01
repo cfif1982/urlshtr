@@ -21,7 +21,7 @@ func main() {
 	logger, err := log.GetLogger()
 
 	if err != nil {
-		panic("cannot initialize zap")
+		logger.Fatal("cannot initialize zap")
 	}
 
 	// выводим сообщенеи об успешной инициализации логгера

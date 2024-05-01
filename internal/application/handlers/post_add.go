@@ -9,7 +9,12 @@ import (
 )
 
 type (
-	PostBody struct {
+	PostBodyRequest struct {
+		URL    string `json:"url,omitempty"`
+		Result string `json:"result,omitempty"`
+	}
+
+	PostBodyResponse struct {
 		URL    string `json:"url,omitempty"`
 		Result string `json:"result,omitempty"`
 	}
@@ -18,7 +23,7 @@ type (
 // Обрабатываем запрос на добавление ссылки в БД
 func (h *Handler) PostAddLink(rw http.ResponseWriter, req *http.Request) {
 
-	var postBody PostBody
+	var postBodyRequest PostBodyRequest
 
 	// после чтения тела запроса, закрываем
 	defer req.Body.Close()
@@ -29,13 +34,13 @@ func (h *Handler) PostAddLink(rw http.ResponseWriter, req *http.Request) {
 		h.logger.Fatal(err.Error())
 	}
 
-	if err = json.Unmarshal(body, &postBody); err != nil {
+	if err = json.Unmarshal(body, &postBodyRequest); err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// обращаемся к domain - создаем объект ССЫЛКА
-	link, err := links.CreateLink(postBody.URL)
+	link, err := links.CreateLink(postBodyRequest.URL)
 	if err != nil {
 		h.logger.Fatal(err.Error())
 	}
@@ -54,10 +59,11 @@ func (h *Handler) PostAddLink(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusCreated)
 
 	// формируем текст ответа сервера
-	postBody.Result = h.baseURL + "/" + link.Key()
-	postBody.URL = ""
+	var postBodyResponse PostBodyRequest
+	postBodyResponse.Result = h.baseURL + "/" + link.Key()
+	postBodyResponse.URL = ""
 
-	answerText, err := json.Marshal(postBody)
+	answerText, err := json.Marshal(postBodyResponse)
 
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)

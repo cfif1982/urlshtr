@@ -40,7 +40,6 @@ func (c *compressReader) Close() error {
 func GzipDecompressMiddleware(h http.Handler) http.Handler {
 	gzipFn := func(rw http.ResponseWriter, req *http.Request) {
 
-		ow := rw
 		// проверяем, что клиент отправил серверу сжатые данные в формате gzip
 		contentEncoding := req.Header.Get("Content-Encoding")
 		sendsGzip := strings.Contains(contentEncoding, "gzip")
@@ -57,43 +56,7 @@ func GzipDecompressMiddleware(h http.Handler) http.Handler {
 		}
 
 		// передаём управление хендлеру
-		h.ServeHTTP(ow, req)
-
-		/*
-			log.Printf("Header: Content-Encoding: %v", req.Header.Get("Content-Encoding"))
-
-			if !strings.Contains(req.Header.Get("Content-Encoding"), "gzip") {
-				// если gzip не поддерживается, передаём управление дальше без изменений
-				h.ServeHTTP(rw, req)
-				return
-			}
-
-			// создаём *gzip.Reader, который будет читать тело запроса и распаковывать его
-			gz, err := gzip.NewReader(req.Body)
-			if err != nil {
-				// log.Println(err.Error())
-				http.Error(rw, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			log.Println("test 2")
-			// закрываем gzip-читателя
-			defer gz.Close()
-
-			// при чтении вернётся распакованный слайс байт
-			body, err := io.ReadAll(gz)
-			log.Println("test 3")
-			// log.Printf("Body: %vr\n", req.Header.Get("Content-Encoding"))
-			if err != nil {
-				http.Error(rw, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			// после того как распаовали тело запроса,
-			// нужно его перезаписать
-			req.Body = io.NopCloser(strings.NewReader(string(body)))
-			req.ContentLength = int64(len(string(body)))
-		*/
+		h.ServeHTTP(rw, req)
 	}
 
 	return http.HandlerFunc(gzipFn)

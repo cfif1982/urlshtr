@@ -66,22 +66,8 @@ func TestAddLink(t *testing.T) {
 			// готовим текст для передачи  в тело запроса
 			body := strings.NewReader(test.requestBody)
 
-			// var b bytes.Buffer
-			// w := gzip.NewWriter(&b)
-
-			// _, err := w.Write([]byte(test.requestBody))
-
-			// buff := []io.Reader{b}
-
-			// body := strings.NewReader(string(b[:]))
-
-			// logger.Info(b.String())
-
 			// создаем запрос методом POST
 			request, _ := http.NewRequest(http.MethodPost, "http://localhost:8080/", body)
-
-			// request.Header.Add("Accept-Encoding", "gzip")
-			// request.Header.Add("Content-Encoding", "gzip")
 
 			// создаем рекордер для роутера
 			rec := httptest.NewRecorder()
@@ -93,8 +79,7 @@ func TestAddLink(t *testing.T) {
 			assert.Equal(t, test.want.code, rec.Code)
 
 			// получаем тело запроса
-			// не зню - нужно ли здесь закрывать тело? такой функци у роутера chi нет
-			// defer rec.Body.Close()
+			defer request.Body.Close()
 			resBody, err := io.ReadAll(rec.Body)
 			require.NoError(t, err)
 
