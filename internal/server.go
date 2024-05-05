@@ -48,21 +48,24 @@ func (s *Server) Run(serverAddr string) error {
 	// Создаем репозиторий для работы с БД. Здесь можно изменить БД и выбрать другую тенологию
 	// Если указан файл , то база данных х файлов
 
-	var handler *handlers.Handler
+	var (
+		linkRepo handlers.RepositoryInterface
+		handler  *handlers.Handler
+		err      error
+	)
 
 	if s.FileStoragePath == "" {
-		linkRepo := linksInfra.NewLocalRepository()
-		// создаем хндлер и передаем ему нужную БД
-		handler = handlers.NewHandler(linkRepo, s.serverBaseURL, s.logger)
+		linkRepo = linksInfra.NewLocalRepository()
 	} else {
-		linkRepo, err := linksInfra.NewFileRepository(s.FileStoragePath)
+		linkRepo, err = linksInfra.NewFileRepository(s.FileStoragePath)
 
 		if err != nil {
 			s.logger.Fatal("can't initialize storage file: " + err.Error())
 		}
-		// создаем хндлер и передаем ему нужную БД
-		handler = handlers.NewHandler(linkRepo, s.serverBaseURL, s.logger)
 	}
+
+	// создаем хндлер и передаем ему нужную БД
+	handler = handlers.NewHandler(linkRepo, s.serverBaseURL, s.logger)
 
 	//********************************************************
 

@@ -10,12 +10,10 @@ import (
 
 type (
 	PostBodyRequest struct {
-		URL    string `json:"url,omitempty"`
-		Result string `json:"result,omitempty"`
+		URL string `json:"url,omitempty"`
 	}
 
 	PostBodyResponse struct {
-		URL    string `json:"url,omitempty"`
 		Result string `json:"result,omitempty"`
 	}
 )
@@ -59,9 +57,9 @@ func (h *Handler) PostAddLink(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusCreated)
 
 	// формируем текст ответа сервера
-	var postBodyResponse PostBodyRequest
-	postBodyResponse.Result = h.baseURL + "/" + link.Key()
-	postBodyResponse.URL = ""
+	postBodyResponse := PostBodyResponse{
+		Result: h.baseURL + "/" + link.Key(),
+	}
 
 	answerText, err := json.Marshal(postBodyResponse)
 
