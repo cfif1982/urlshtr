@@ -51,3 +51,9 @@ func (r *LocalRepository) GetLinkByKey(key string) (*links.Link, error) {
 
 	return link, nil
 }
+
+// узнаем доступность базы данных. Локальный репозиторий всегда доступен
+func (r *LocalRepository) Ping() error {
+
+	return nil
+}

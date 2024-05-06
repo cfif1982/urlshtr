@@ -14,6 +14,9 @@ type RepositoryInterface interface {
 
 	// Найти ссылку в БД по key
 	GetLinkByKey(key string) (*links.Link, error)
+
+	// узнаем - доступна ли БД
+	Ping() error
 }
 
 // структура хэндлера

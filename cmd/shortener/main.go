@@ -13,6 +13,7 @@ type Config struct {
 	ServerAddress   string `env:"SERVER_ADDRESS"`
 	BaseURL         string `env:"BASE_URL"`
 	FileStoragePath string `env:"FILE_STORAGE_PATH"`
+	DatabaseDSN     string `env:"DATABASE_DSN"`
 }
 
 func main() {
@@ -31,6 +32,7 @@ func main() {
 	serverAddressArg := flag.String("a", "localhost:8080", "server address ")
 	serverBaseURLArg := flag.String("b", "http://localhost:8080", "server base URL")
 	fileStoragePathArg := flag.String("f", "/tmp/short-url-db.json", "file storage path")
+	databaseDSNArg := flag.String("d", "", "database DSN")
 
 	// делаем разбор командной строки
 	flag.Parse()
@@ -53,6 +55,9 @@ func main() {
 	// базовый URL из флага
 	fileStoragePath := *fileStoragePathArg
 
+	// базовый URL из флага
+	databaseDSN := *databaseDSNArg
+
 	// Если переменные среды установлены, то берем данные эти данные
 	if cfg.ServerAddress != "" {
 		serverAddress = cfg.ServerAddress
@@ -68,8 +73,13 @@ func main() {
 		fileStoragePath = cfg.FileStoragePath
 	}
 
+	// Если переменные среды установлены, то берем данные эти данные
+	if cfg.DatabaseDSN != "" {
+		databaseDSN = cfg.DatabaseDSN
+	}
+
 	// создаем сервер
-	srv := internal.NewServer(serverAddress, serverBaseURL, fileStoragePath, logger)
+	srv := internal.NewServer(serverAddress, serverBaseURL, fileStoragePath, databaseDSN, logger)
 
 	// запускаем сервер
 	if err := srv.Run(srv.GetServerAddress()); err != nil {
