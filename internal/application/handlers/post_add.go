@@ -1,15 +1,27 @@
 package handlers
 
 import (
+	"encoding/json"
 	"io"
-
 	"net/http"
 
 	"github.com/cfif1982/urlshtr.git/internal/domain/links"
 )
 
+type (
+	PostBodyRequest struct {
+		URL string `json:"url,omitempty"`
+	}
+
+	PostBodyResponse struct {
+		Result string `json:"result,omitempty"`
+	}
+)
+
 // Обрабатываем запрос на добавление ссылки в БД
-func (h *Handler) AddLink(rw http.ResponseWriter, req *http.Request) {
+func (h *Handler) PostAddLink(rw http.ResponseWriter, req *http.Request) {
+
+	var postBodyRequest PostBodyRequest
 
 	// после чтения тела запроса, закрываем
 	defer req.Body.Close()
@@ -20,8 +32,13 @@ func (h *Handler) AddLink(rw http.ResponseWriter, req *http.Request) {
 		h.logger.Fatal(err.Error())
 	}
 
+	if err = json.Unmarshal(body, &postBodyRequest); err != nil {
+		http.Error(rw, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	// обращаемся к domain - создаем объект ССЫЛКА
-	link, err := links.CreateLink(string(body))
+	link, err := links.CreateLink(postBodyRequest.URL)
 	if err != nil {
 		h.logger.Fatal(err.Error())
 	}
@@ -34,13 +51,22 @@ func (h *Handler) AddLink(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// Устанавливаем в заголовке тип передаваемых данных
-	rw.Header().Set("Content-Type", "text/plain")
+	rw.Header().Set("Content-Type", "application/json")
 
 	// устанавливаем код 201
 	rw.WriteHeader(http.StatusCreated)
 
 	// формируем текст ответа сервера
-	answerText := h.baseURL + "/" + link.Key()
+	postBodyResponse := PostBodyResponse{
+		Result: h.baseURL + "/" + link.Key(),
+	}
+
+	answerText, err := json.Marshal(postBodyResponse)
+
+	if err != nil {
+		http.Error(rw, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// выводим ответ сервера
 	_, err = rw.Write([]byte(answerText))

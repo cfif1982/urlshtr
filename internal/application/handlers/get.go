@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -9,7 +8,6 @@ import (
 
 // Обрабатываем запрос на получение ссылки из БД по ключу
 func (h *Handler) GetLinkByKey(rw http.ResponseWriter, req *http.Request) {
-
 	// разбираем url запроса и ищем поле key
 	key := chi.URLParam(req, "key")
 
@@ -17,20 +15,18 @@ func (h *Handler) GetLinkByKey(rw http.ResponseWriter, req *http.Request) {
 	url, err := h.repo.GetLinkByKey(key)
 
 	// Если запись не найдена в БД
+	// да, мы это дело в 13 инкременте изучаем. Я тогда как дойду до него - исправлю
+	// TODO: исправить ошибку
+	// По хорошему стоит обрабатывать ошибку, что ссылка действительно просто не нашлась и тогда отдавать 404, но это должно быть дальше по курсу, вроде в 13-м инкременте
 	if err != nil {
-		log.Print("link not found")
+		h.logger.Info("link not found")
 		rw.WriteHeader(http.StatusInternalServerError)
 	} else {
 
 		// Устанавливаем заголовок ответа
 		rw.Header().Set("Location", url.URL())
 
-		// вот здесь при тестировании вылезает ошибка((( так и не смог разобраться
-		// Если устанавливаю код http.StatusCreated - то у меня в тесте в заголовок ответа всё записывается и код ответа правильный - 201
-		// а если меняю код на http.StatusTemporaryRedirect, то в ответе в заголовке ничего не записывается и код ответа 200
-		// в чем может быть ошибка?
 		// устанавливаем код ответа 307
 		rw.WriteHeader(http.StatusTemporaryRedirect)
-		// rw.WriteHeader(http.StatusCreated)
 	}
 }
