@@ -17,17 +17,23 @@ type Server struct {
 	serverAddress   string
 	serverBaseURL   string
 	FileStoragePath string
+
 	databaseDSN     string
+
 	logger          *log.Logger
 }
 
 // Конструктор Server
+
 func NewServer(addr, base, storage, dsn string, logger *log.Logger) Server {
+
 	return Server{
 		serverAddress:   addr,
 		serverBaseURL:   base,
 		FileStoragePath: storage,
+
 		databaseDSN:     dsn,
+
 		logger:          logger,
 	}
 }
@@ -56,6 +62,7 @@ func (s *Server) Run(serverAddr string) error {
 		err      error
 	)
 
+
 	s.databaseDSN = `localhost` // для тестирования СУБД
 
 	// если указан адрес СУБД
@@ -76,6 +83,7 @@ func (s *Server) Run(serverAddr string) error {
 			if err != nil {
 				s.logger.Fatal("can't initialize storage file: " + err.Error())
 			}
+
 		}
 	}
 
@@ -104,7 +112,9 @@ func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 
 	// назначаем хэндлеры для обработки запросов пользователя
 	router.Get(`/{key}`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.GetLinkByKey)))
+
 	router.Get(`/ping`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.Ping)))
+
 	router.Post(`/`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.AddLink)))
 	router.Post(`/api/shorten`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.PostAddLink)))
 

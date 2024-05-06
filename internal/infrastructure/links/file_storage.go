@@ -116,12 +116,14 @@ func (r *FileRepository) GetLinkByKey(key string) (*links.Link, error) {
 
 	// если ссылка не найдена, то возвращаем ошибку
 	return nil, links.ErrLinkNotFound
+
 }
 
 // узнаем доступность базы данных. Вернем nil, т.к. эта функция нуна для БД, а здесь всавил ее для совместимости интрефейсов
 func (r *FileRepository) Ping() error {
 
 	return nil
+
 }
 
 // читаем файл БД
