@@ -17,12 +17,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAddLink(t *testing.T) {
+func TestPostAddLink(t *testing.T) {
 	type want struct {
-		code        int
-		response    string
-		headerType  string
-		headerValue string
+		code          int
+		responseStart string
+		responseEnd   string
+		headerType    string
+		headerValue   string
 	}
 	tests := []struct {
 		name        string
@@ -31,12 +32,13 @@ func TestAddLink(t *testing.T) {
 	}{
 		{
 			name:        "add link test #1",
-			requestBody: "https://practicum.yandex.ru/",
+			requestBody: `{"url":"https://practicum.yandex.ru"}`,
 			want: want{
-				code:        http.StatusCreated,
-				response:    "http://localhost:8080/",
-				headerType:  "Content-Type",
-				headerValue: "text/plain",
+				code:          http.StatusCreated,
+				responseStart: `{"result":"http://localhost:8080/`,
+				responseEnd:   `"}`,
+				headerType:    "Content-Type",
+				headerValue:   "application/json",
 			},
 		},
 	}
@@ -67,7 +69,7 @@ func TestAddLink(t *testing.T) {
 			body := strings.NewReader(test.requestBody)
 
 			// создаем запрос методом POST
-			request, _ := http.NewRequest(http.MethodPost, "http://localhost:8080/", body)
+			request, _ := http.NewRequest(http.MethodPost, "http://localhost:8080/api/shorten", body)
 
 			// создаем рекордер для роутера
 			rec := httptest.NewRecorder()
@@ -84,10 +86,10 @@ func TestAddLink(t *testing.T) {
 			require.NoError(t, err)
 
 			// в теле ответа должна появиться ссылка - находим в ней key
-			testedKey := string(resBody)[len(test.want.response):]
+			testedKey := string(resBody)[len(test.want.responseStart):]
 
 			// проверяем тело запроса
-			assert.Equal(t, test.want.response+testedKey, string(resBody))
+			assert.Equal(t, test.want.responseStart+testedKey, string(resBody))
 
 			// Проверяем заголовок ответа
 			assert.Equal(t, test.want.headerValue, rec.Header().Get(test.want.headerType))

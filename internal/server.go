@@ -3,7 +3,10 @@ package internal
 import (
 	"net/http"
 
+	"github.com/cfif1982/urlshtr.git/pkg/log"
+
 	"github.com/cfif1982/urlshtr.git/internal/application/handlers"
+	"github.com/cfif1982/urlshtr.git/internal/application/middlewares"
 	linksInfra "github.com/cfif1982/urlshtr.git/internal/infrastructure/links"
 
 	"github.com/go-chi/chi/v5"
@@ -11,15 +14,19 @@ import (
 
 // структура сервера. Храним передаваемые параметры при запуске программы
 type Server struct {
-	serverAddress string
-	serverBaseURL string
+	serverAddress   string
+	serverBaseURL   string
+	FileStoragePath string
+	logger          *log.Logger
 }
 
 // Конструктор Server
-func NewServer(addr string, base string) Server {
+func NewServer(addr string, base string, storage string, logger *log.Logger) Server {
 	return Server{
-		serverAddress: addr,
-		serverBaseURL: base,
+		serverAddress:   addr,
+		serverBaseURL:   base,
+		FileStoragePath: storage,
+		logger:          logger,
 	}
 }
 
@@ -33,30 +40,39 @@ func (s *Server) GetServerBaseURL() string {
 	return s.serverBaseURL
 }
 
-// // установить адресс сервера
-// func (s *Server) SetServerAddress(addr string) {
-// 	s.serverAddress = addr
-// }
-
-// // установить базовый URL
-// func (s *Server) SetServerBaseURL(base string) {
-// 	s.serverBaseURL = base
-// }
-
 // запуск сервера
 func (s *Server) Run(serverAddr string) error {
 
 	// Dependency Injection
 	//********************************************************
-	// Создаем репозиторий для работы с БД. Здесь можно изменить БД и выбратьдругую тенологию
-	linkRepo := linksInfra.NewLocalRepository()
+	// Создаем репозиторий для работы с БД. Здесь можно изменить БД и выбрать другую тенологию
+	// Если указан файл , то база данных х файлов
+
+	var (
+		linkRepo handlers.RepositoryInterface
+		handler  *handlers.Handler
+		err      error
+	)
+
+	if s.FileStoragePath == "" {
+		linkRepo = linksInfra.NewLocalRepository()
+	} else {
+		linkRepo, err = linksInfra.NewFileRepository(s.FileStoragePath)
+
+		if err != nil {
+			s.logger.Fatal("can't initialize storage file: " + err.Error())
+		}
+	}
 
 	// создаем хндлер и передаем ему нужную БД
-	handler := handlers.NewHandler(linkRepo, s.serverBaseURL)
+	handler = handlers.NewHandler(linkRepo, s.serverBaseURL, s.logger)
+
 	//********************************************************
 
 	// инициализируем роутер
 	routerChi := s.InitRoutes(handler)
+
+	s.logger.Info("Starting server", "addr", serverAddr)
 
 	// запуск сервера на нужно адресе и с нужным роутером
 	return http.ListenAndServe(serverAddr, routerChi)
@@ -68,9 +84,13 @@ func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 	// создаем роутер
 	router := chi.NewRouter()
 
+	router.Use(middlewares.GzipCompressMiddleware)
+	router.Use(middlewares.GzipDecompressMiddleware)
+
 	// назначаем хэндлеры для обработки запросов пользователя
-	router.Get(`/{key}`, handler.GetLinkByKey)
-	router.Post(`/`, handler.AddLink)
+	router.Get(`/{key}`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.GetLinkByKey)))
+	router.Post(`/`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.AddLink)))
+	router.Post(`/api/shorten`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.PostAddLink)))
 
 	return router
 }

@@ -24,3 +24,4 @@ vendor/
 
 # VS Code workspace file
 *.code-workspace
+requests.http
