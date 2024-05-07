@@ -17,15 +17,17 @@ type Server struct {
 	serverAddress   string
 	serverBaseURL   string
 	FileStoragePath string
+	databaseDSN     string
 	logger          *log.Logger
 }
 
 // Конструктор Server
-func NewServer(addr string, base string, storage string, logger *log.Logger) Server {
+func NewServer(addr, base, storage, dsn string, logger *log.Logger) Server {
 	return Server{
 		serverAddress:   addr,
 		serverBaseURL:   base,
 		FileStoragePath: storage,
+		databaseDSN:     dsn,
 		logger:          logger,
 	}
 }
@@ -54,13 +56,26 @@ func (s *Server) Run(serverAddr string) error {
 		err      error
 	)
 
-	if s.FileStoragePath == "" {
-		linkRepo = linksInfra.NewLocalRepository()
-	} else {
-		linkRepo, err = linksInfra.NewFileRepository(s.FileStoragePath)
+	// s.databaseDSN = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", `localhost`, `postgres`, `123`, `videos`) // для тестирования СУБД
+
+	// если указан адрес СУБД
+	if s.databaseDSN != "" {
+		linkRepo, err = linksInfra.NewPostgresRepository(s.databaseDSN)
 
 		if err != nil {
-			s.logger.Fatal("can't initialize storage file: " + err.Error())
+			s.logger.Fatal("can't initialize postgres DB: " + err.Error())
+		}
+	} else {
+		// Если не указан файл как БД, то создаем репозиторий в памяти
+		if s.FileStoragePath == "" {
+			linkRepo = linksInfra.NewLocalRepository()
+		} else {
+			// если указан файл как БД, то инициализируем файловый репозиторий
+			linkRepo, err = linksInfra.NewFileRepository(s.FileStoragePath)
+
+			if err != nil {
+				s.logger.Fatal("can't initialize storage file: " + err.Error())
+			}
 		}
 	}
 
@@ -89,6 +104,7 @@ func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 
 	// назначаем хэндлеры для обработки запросов пользователя
 	router.Get(`/{key}`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.GetLinkByKey)))
+	router.Get(`/ping`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.Ping)))
 	router.Post(`/`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.AddLink)))
 	router.Post(`/api/shorten`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.PostAddLink)))
 
