@@ -1,5 +1,5 @@
 curl -v -X GET "http://localhost:8080/aa69feca" -H "Accept-Encoding: gzip" --output -
-curl -v -X GET "http://localhost:8080/b2ce0d2e"
+curl -v -X GET "http://localhost:8080/950ff6fb"
 
 ###
 GET http://localhost:8080/11cd2334 HTTP/1.1
@@ -7,9 +7,9 @@ GET http://localhost:8080/11cd2334 HTTP/1.1
 
 
 ###
+curl  -v -X  POST "http://localhost:8080" -H "Content-Type: text/plain"  --data "google.com"
 curl  -v -X  POST "http://localhost:8080" -H "Content-Type: text/plain" -H "Content-Encoding: gzip"  --data "google.com" --output -
 curl  -v -X  POST "http://localhost:8080" -H "Content-Type: text/plain" -H "Content-Encoding: gzip"  --data @send.txt.gz --output -
-curl  -v -X  POST "http://localhost:8080" -H "Content-Type: text/plain"  --data "google.com"
 curl  -v -X  POST "http://localhost:8080" -H "Content-Type: text/plain"  --data @send.txt
 
 ###

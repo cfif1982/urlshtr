@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/cfif1982/urlshtr.git/pkg/log"
@@ -56,7 +57,7 @@ func (s *Server) Run(serverAddr string) error {
 		err      error
 	)
 
-	// s.databaseDSN = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", `localhost`, `postgres`, `123`, `videos`) // для тестирования СУБД
+	s.databaseDSN = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", `localhost`, `postgres`, `123`, `videos`) // для тестирования СУБД
 
 	// если указан адрес СУБД
 	if s.databaseDSN != "" {
@@ -64,17 +65,22 @@ func (s *Server) Run(serverAddr string) error {
 
 		if err != nil {
 			s.logger.Fatal("can't initialize postgres DB: " + err.Error())
+		} else {
+			s.logger.Info("postgres DB initialized")
 		}
 	} else {
 		// Если не указан файл как БД, то создаем репозиторий в памяти
 		if s.FileStoragePath == "" {
 			linkRepo = linksInfra.NewLocalRepository()
+			s.logger.Info("Local Repository initialized")
 		} else {
 			// если указан файл как БД, то инициализируем файловый репозиторий
 			linkRepo, err = linksInfra.NewFileRepository(s.FileStoragePath)
 
 			if err != nil {
 				s.logger.Fatal("can't initialize storage file: " + err.Error())
+			} else {
+				s.logger.Info("file storage initialized")
 			}
 		}
 	}
