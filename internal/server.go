@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/cfif1982/urlshtr.git/pkg/log"
@@ -57,7 +56,8 @@ func (s *Server) Run(serverAddr string) error {
 		err      error
 	)
 
-	s.databaseDSN = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", `localhost`, `postgres`, `123`, `videos`) // для тестирования СУБД
+	// для тестирования СУБД на локальном компе
+	// s.databaseDSN = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", `localhost`, `postgres`, `123`, `videos`)
 
 	// если указан адрес СУБД
 	if s.databaseDSN != "" {
