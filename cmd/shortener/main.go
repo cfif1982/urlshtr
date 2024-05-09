@@ -33,7 +33,7 @@ func main() {
 	// указываем имя флага, значение по умолчанию и описание
 	serverAddressArg := flag.String("a", "localhost:8080", "server address ")
 	serverBaseURLArg := flag.String("b", "http://localhost:8080", "server base URL")
-	fileStoragePathArg := flag.String("f", "/tmp/short-url-db.json", "file storage path")
+	fileStoragePathArg := flag.String("f", "", "file storage path") // если нужен файл по умолчанию то "/tmp/short-url-db.json"
 	databaseDSNArg := flag.String("d", "", "database DSN")
 
 	// делаем разбор командной строки
