@@ -37,14 +37,30 @@ func (h *Handler) PostAddLink(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// обращаемся к domain - создаем объект ССЫЛКА
-	link, err := links.CreateLink(postBodyRequest.URL)
-	if err != nil {
-		h.logger.Fatal(err.Error())
-	}
+	// флаг создания ссылки
+	bLinkCreated := false
 
-	// обращаемся к БД - сохраняем ссылку в БД
-	err = h.repo.AddLink(link)
+	// создаем переменную для хранения ссылки
+	var link *links.Link
+
+	// повторяем цикл до тех пор, пока ссылка не создастся.
+	// Делаю на случай существования такого ключа
+	for !bLinkCreated {
+		// обращаемся к domain - создаем объект ССЫЛКА
+		link, err = links.CreateLink(postBodyRequest.URL)
+		if err != nil {
+			h.logger.Fatal(err.Error())
+		}
+
+		// обращаемся к БД - сохраняем ссылку в БД
+		err = h.repo.AddLink(link)
+
+		// если err равна links.ErrKeyAlreadyExist, то нужно повторить генерацию ссылки и сохранить ее еще раз
+		// во всех других случаях заканчиваем цикл(либо успешное создание ссылки, либо другая какая ошибка)
+		if err != links.ErrKeyAlreadyExist {
+			bLinkCreated = true
+		}
+	}
 
 	if err != nil {
 		h.logger.Fatal(err.Error())

@@ -113,6 +113,7 @@ func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 	router.Get(`/ping`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.Ping)))
 	router.Post(`/`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.AddLink)))
 	router.Post(`/api/shorten`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.PostAddLink)))
+	router.Post(`/api/shorten/batch`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.PostAddBatchLink)))
 
 	return router
 }
