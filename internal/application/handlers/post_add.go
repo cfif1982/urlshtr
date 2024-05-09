@@ -62,15 +62,24 @@ func (h *Handler) PostAddLink(rw http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	// проверяем: если ошибка links.ErrURLAlreadyExist, то выводим информацию об этом в ответе сервера
 	if err != nil {
-		h.logger.Fatal(err.Error())
+		if err == links.ErrURLAlreadyExist {
+			// запрос к БД - находим ссылку по ключу
+			link, _ = h.repo.GetLinkByURL(link.URL())
+
+			// устанавливаем код 409
+			rw.WriteHeader(http.StatusConflict)
+		} else {
+			h.logger.Fatal(err.Error())
+		}
+	} else {
+		// устанавливаем код 201
+		rw.WriteHeader(http.StatusCreated)
 	}
 
 	// Устанавливаем в заголовке тип передаваемых данных
 	rw.Header().Set("Content-Type", "application/json")
-
-	// устанавливаем код 201
-	rw.WriteHeader(http.StatusCreated)
 
 	// формируем текст ответа сервера
 	postBodyResponse := PostBodyResponse{

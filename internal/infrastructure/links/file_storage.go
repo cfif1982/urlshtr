@@ -118,6 +118,34 @@ func (r *FileRepository) GetLinkByKey(key string) (*links.Link, error) {
 	return nil, links.ErrLinkNotFound
 }
 
+// находим ссылку в БД по URL
+func (r *FileRepository) GetLinkByURL(URL string) (*links.Link, error) {
+
+	// создаем БД
+	db := make(map[string]string)
+
+	// загружаем данные из файла
+	err := r.readDBFile(&db)
+	if err != nil {
+		return nil, err
+	}
+
+	// пробегаемся по БД и ищем нужную ссылку
+	for k, v := range db {
+		// если ссылка найдена, то возвращаем ее
+		if v == URL {
+			link, err := links.NewLink(k, v)
+			if err != nil {
+				return nil, err
+			}
+			return link, nil
+		}
+	}
+
+	// если ссылка не найдена, то возвращаем ошибку
+	return nil, links.ErrLinkNotFound
+}
+
 // узнаем доступность базы данных. Вернем nil, т.к. эта функция нуна для БД, а здесь всавил ее для совместимости интрефейсов
 func (r *FileRepository) Ping() error {
 

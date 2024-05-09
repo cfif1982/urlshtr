@@ -52,6 +52,25 @@ func (r *LocalRepository) GetLinkByKey(key string) (*links.Link, error) {
 	return link, nil
 }
 
+// находим ссылку в БД по URL
+func (r *LocalRepository) GetLinkByURL(URL string) (*links.Link, error) {
+
+	// ищем запись
+	for k, v := range r.db {
+
+		if v == URL {
+			link, err := links.NewLink(k, v)
+
+			if err != nil {
+				return nil, err
+			}
+
+			return link, nil
+		}
+	}
+	return nil, links.ErrLinkNotFound
+}
+
 // узнаем доступность базы данных. Локальный репозиторий всегда доступен
 func (r *LocalRepository) Ping() error {
 

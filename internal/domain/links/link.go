@@ -10,6 +10,7 @@ import (
 var (
 	ErrLinkNotFound    = errors.New("link not found")
 	ErrKeyAlreadyExist = errors.New("key already exist")
+	ErrURLAlreadyExist = errors.New("url already exist")
 )
 
 // структура для хранения объекта ССЫЛКА
