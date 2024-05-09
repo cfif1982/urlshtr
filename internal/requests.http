@@ -1,21 +1,24 @@
+curl -v -X GET "http://localhost:8080/70085278"
 curl -v -X GET "http://localhost:8080/aa69feca" -H "Accept-Encoding: gzip" --output -
-curl -v -X GET "http://localhost:8080/950ff6fb"
+
 
 ###
-GET http://localhost:8080/11cd2334 HTTP/1.1
-
-
-
+GET http://localhost:8080/70085278 HTTP/1.1
 ###
 curl  -v -X  POST "http://localhost:8080" -H "Content-Type: text/plain"  --data "google.com"
 
 ###
-curl  -v -X  POST "http://localhost:8080/api/shorten/batch" -H "Content-Type: text/plain"  --data "[{"correlation_id":"111","original_url":"http://yandex.ru"},{"correlation_id":"222","original_url":"http://yandex.praktikum.ru"}]"
 ###
 curl  -v -X  POST "http://localhost:8080" -H "Content-Type: text/plain" -H "Content-Encoding: gzip"  --data "google.com" --output -
 curl  -v -X  POST "http://localhost:8080" -H "Content-Type: text/plain" -H "Content-Encoding: gzip"  --data @send.txt.gz --output -
 curl  -v -X  POST "http://localhost:8080" -H "Content-Type: text/plain"  --data @send.txt
 
+###
+
+POST http://localhost:8080 HTTP/1.1
+content-type: application/json
+
+google.com
 ### - тело запроса пишем после пустой строки, т.е. не в {}, а просто после пустой строки. В данном случае {} это символы самого тела запроса
 POST http://localhost:8080/api/shorten HTTP/1.1
 content-type: application/json

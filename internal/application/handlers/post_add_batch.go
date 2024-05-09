@@ -10,7 +10,7 @@ import (
 
 type (
 	PostBatchBodyRequest struct {
-		CorrelationId string `json:"correlation_id,omitempty"`
+		CorrelationID string `json:"correlation_id,omitempty"`
 		OriginalURL   string `json:"original_url,omitempty"`
 	}
 
@@ -85,7 +85,7 @@ func (h *Handler) PostAddBatchLink(rw http.ResponseWriter, req *http.Request) {
 		postBatchBodyResponse = append(
 			postBatchBodyResponse,
 			PostBatchBodyResponse{
-				CorrelationId: v.CorrelationId,
+				CorrelationId: v.CorrelationID,
 				ShortURL:      link.Key(),
 			})
 	}
