@@ -45,6 +45,9 @@ func (h *Handler) AddLink(rw http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	// Устанавливаем в заголовке тип передаваемых данных
+	rw.Header().Set("Content-Type", "text/plain")
+
 	// проверяем: если ошибка links.ErrURLAlreadyExist, то выводим информацию об этом в ответе сервера
 	if err != nil {
 		if err == links.ErrURLAlreadyExist {
@@ -60,9 +63,6 @@ func (h *Handler) AddLink(rw http.ResponseWriter, req *http.Request) {
 		// устанавливаем код 201
 		rw.WriteHeader(http.StatusCreated)
 	}
-
-	// Устанавливаем в заголовке тип передаваемых данных
-	rw.Header().Set("Content-Type", "text/plain")
 
 	// формируем текст ответа сервера
 	answerText := h.baseURL + "/" + link.Key()

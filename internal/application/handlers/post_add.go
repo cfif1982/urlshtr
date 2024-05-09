@@ -62,6 +62,9 @@ func (h *Handler) PostAddLink(rw http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	// Устанавливаем в заголовке тип передаваемых данных
+	rw.Header().Set("Content-Type", "application/json")
+
 	// проверяем: если ошибка links.ErrURLAlreadyExist, то выводим информацию об этом в ответе сервера
 	if err != nil {
 		if err == links.ErrURLAlreadyExist {
@@ -77,9 +80,6 @@ func (h *Handler) PostAddLink(rw http.ResponseWriter, req *http.Request) {
 		// устанавливаем код 201
 		rw.WriteHeader(http.StatusCreated)
 	}
-
-	// Устанавливаем в заголовке тип передаваемых данных
-	rw.Header().Set("Content-Type", "application/json")
 
 	// формируем текст ответа сервера
 	postBodyResponse := PostBodyResponse{
