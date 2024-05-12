@@ -20,11 +20,8 @@ func (r *LocalRepository) CheckKey(key string) bool {
 	// проверяем - есть ли уже записm в БД с таким key
 	// Если запись с таким ключом существует, то true
 	_, ok := r.db[key]
-	if ok {
-		return true
-	}
 
-	return false
+	return ok
 }
 
 // Добавляем ссылку в базу данных

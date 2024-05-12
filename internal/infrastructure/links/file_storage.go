@@ -71,11 +71,8 @@ func (r *FileRepository) CheckKey(key string) bool {
 
 	// проверяем - есть ли уже запись в БД с таким key
 	_, ok := db[key]
-	if ok {
-		return true
-	}
 
-	return false
+	return ok
 }
 
 // Добавляем ссылку в базу данных

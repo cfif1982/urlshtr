@@ -42,6 +42,9 @@ func (h *Handler) PostAddBatchLink(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// создаем map для хранения ссылок
+	mapLinks := []*links.Link{}
+
 	// перебираем получившийся массив структур
 	for _, v := range postBatchBodyRequest {
 
@@ -50,9 +53,6 @@ func (h *Handler) PostAddBatchLink(rw http.ResponseWriter, req *http.Request) {
 
 		// создаем переменную для хранения ссылки
 		var link *links.Link
-
-		// создаем map для хранения ссылок
-		mapLinks := []*links.Link{}
 
 		// повторяем цикл до тех пор, пока ссылка не создастся.
 		// Делаю на случай существования такого ключа
@@ -70,7 +70,7 @@ func (h *Handler) PostAddBatchLink(rw http.ResponseWriter, req *http.Request) {
 
 			// проверяем - есть ли такой key в БД
 			// если ключа нет, то добавляем ссылку в map, иначе генерируем новую ссылку
-			if ok := h.repo.CheckKey(link.Key()); ok == false {
+			if ok := h.repo.CheckKey(link.Key()); !ok {
 
 				// сохраняем ссылку в map
 				mapLinks = append(mapLinks, link)
@@ -90,6 +90,10 @@ func (h *Handler) PostAddBatchLink(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// После того как сформировали массив ссылок для добавлеия в БД, добавляем всё дним запросом
+	err = h.repo.AddLinkBatch(mapLinks)
+	if err != nil {
+		h.logger.Fatal(err.Error())
+	}
 
 	// Устанавливаем в заголовке тип передаваемых данных
 	rw.Header().Set("Content-Type", "application/json")

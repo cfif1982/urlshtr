@@ -33,35 +33,35 @@ func NewPostgresRepository(ctx context.Context, databaseDSN string) (*PostgresRe
 	//defer db.Close()
 
 	// создаю контекст для пинга
-	ctx2, cancel := context.WithTimeout(ctx, 1*time.Second)
-	defer cancel()
+	ctx2, cancel2 := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel2()
 
 	// пингую БД. Если не отвечает, то возвращаю ошибку
-	if err = db.PingContext(ctx); err != nil {
+	if err = db.PingContext(ctx2); err != nil {
 		return nil, err
 	}
 
 	// создаю контекст для запроса на создание таблицы
-	ctx2, cancel2 := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel2()
+	ctx3, cancel3 := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel3()
 
 	// если в БД нет таблицы, то создаю ее
 	query := "CREATE TABLE IF NOT EXISTS links(" +
 		"link_key TEXT," +
 		"link_url TEXT UNIQUE NOT NULL)"
-	_, err = db.ExecContext(ctx2, query)
+	_, err = db.ExecContext(ctx3, query)
 	if err != nil {
 		return nil, err
 	}
 
 	// создаю контекст для запроса на создание индекса
-	ctx3, cancel3 := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel3()
+	ctx4, cancel4 := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel4()
 
 	// если в БД нет таблицы, то создаю ее
 	query = "CREATE UNIQUE INDEX IF NOT EXISTS idx_url " +
 		"ON links (link_url)"
-	_, err = db.ExecContext(ctx3, query)
+	_, err = db.ExecContext(ctx4, query)
 	if err != nil {
 		return nil, err
 	}
@@ -87,11 +87,7 @@ func (r *PostgresRepository) CheckKey(key string) bool {
 
 	// Если запись с таким ключом существует, то true
 	// Если нашли запись, т.е. err == nil, то возвращаем true
-	if err == nil {
-		return true
-	}
-
-	return false
+	return err == nil
 }
 
 // Добавляем ссылку в базу данных
