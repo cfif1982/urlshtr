@@ -9,8 +9,14 @@ import (
 // Интерфейс репозитория
 type RepositoryInterface interface {
 
+	// узнаем - есть ли уже запись с данным ключом
+	CheckKey(key string) bool
+
 	// Добавить ссылку в БД
 	AddLink(link *links.Link) error
+
+	// Добавить массив ссылок в БД
+	AddLinkBatch(links []*links.Link) error
 
 	// Найти ссылку в БД по key
 	GetLinkByKey(key string) (*links.Link, error)

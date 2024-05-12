@@ -44,11 +44,15 @@ func (h *Handler) PostAddBatchLink(rw http.ResponseWriter, req *http.Request) {
 
 	// перебираем получившийся массив структур
 	for _, v := range postBatchBodyRequest {
+
 		// флаг создания ссылки
 		bLinkCreated := false
 
 		// создаем переменную для хранения ссылки
 		var link *links.Link
+
+		// создаем map для хранения ссылок
+		mapLinks := []*links.Link{}
 
 		// повторяем цикл до тех пор, пока ссылка не создастся.
 		// Делаю на случай существования такого ключа
@@ -60,35 +64,32 @@ func (h *Handler) PostAddBatchLink(rw http.ResponseWriter, req *http.Request) {
 				h.logger.Fatal(err.Error())
 			}
 
-			// тут мне непонятно как быть с добавлением нескольких записей в БД одним запросом
-			// можно подготовить один запрос insert, но тут проблема - нужно проверять существование сгенерированного ключа в базе данных (чтобы не было дублирования)
-			// тогда после генерации ключа нужно делать запрос к базе данных и проверять - существует ли запись с таким ключом.
-			// и если нет, то добавить текст запроса на добавление новой записи в один общий запрос.
-			// тогда какой смысл во вставлении записей одним запросом? если всё-равно на каждую новую ссылку нажуно делать запрос к БД
-			// тогда просто запишу поштучно в БД
+			if err != nil {
+				h.logger.Fatal(err.Error())
+			}
 
-			// обращаемся к БД - сохраняем ссылку в БД
-			err = h.repo.AddLink(link)
+			// проверяем - есть ли такой key в БД
+			// если ключа нет, то добавляем ссылку в map, иначе генерируем новую ссылку
+			if ok := h.repo.CheckKey(link.Key()); ok == false {
 
-			// если err равна links.ErrKeyAlreadyExist, то нужно повторить генерацию ссылки и сохранить ее еще раз
-			// во всех других случаях заканчиваем цикл(либо успешное создание ссылки, либо другая какая ошибка)
-			if err != links.ErrKeyAlreadyExist {
+				// сохраняем ссылку в map
+				mapLinks = append(mapLinks, link)
+
+				// сохраняем даные для формирования ответа сервера
+				postBatchBodyResponse = append(
+					postBatchBodyResponse,
+					PostBatchBodyResponse{
+						CorrelationID: v.CorrelationID,
+						ShortURL:      h.baseURL + "/" + link.Key(),
+					})
+
+				// устанавливаем флаг создания ссылки для прекращения цикла
 				bLinkCreated = true
 			}
 		}
-
-		if err != nil {
-			h.logger.Fatal(err.Error())
-		}
-
-		// сохраняем даные для формирования ответа сервера
-		postBatchBodyResponse = append(
-			postBatchBodyResponse,
-			PostBatchBodyResponse{
-				CorrelationID: v.CorrelationID,
-				ShortURL:      h.baseURL + "/" + link.Key(),
-			})
 	}
+
+	// После того как сформировали массив ссылок для добавлеия в БД, добавляем всё дним запросом
 
 	// Устанавливаем в заголовке тип передаваемых данных
 	rw.Header().Set("Content-Type", "application/json")

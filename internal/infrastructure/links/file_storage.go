@@ -57,6 +57,27 @@ func NewFileRepository(fileName string) (*FileRepository, error) {
 	}, nil
 }
 
+// узнаем - есть ли уже запись с данным ключом
+func (r *FileRepository) CheckKey(key string) bool {
+
+	// создаем БД
+	db := make(map[string]string)
+
+	// загружаем данные из файла
+	err := r.readDBFile(&db)
+	if err != nil {
+		return false
+	}
+
+	// проверяем - есть ли уже запись в БД с таким key
+	_, ok := db[key]
+	if ok {
+		return true
+	}
+
+	return false
+}
+
 // Добавляем ссылку в базу данных
 func (r *FileRepository) AddLink(link *links.Link) error {
 
@@ -69,13 +90,7 @@ func (r *FileRepository) AddLink(link *links.Link) error {
 		return err
 	}
 
-	// проверяем - есть ли уже запись в БД с таким key
-	_, ok := db[link.Key()]
-	if ok {
-		return links.ErrKeyAlreadyExist
-	}
-
-	// если такого key в БД нет, то добавляем ссылку в БД
+	// добавляем ссылку в БД
 	db[link.Key()] = link.URL()
 
 	// маршалим полученный объект в строку для сохранения в файле
@@ -88,6 +103,37 @@ func (r *FileRepository) AddLink(link *links.Link) error {
 	err = os.WriteFile(r.fileName, data, 0666)
 
 	return err
+}
+
+// Добавляем ссылку в базу данных
+func (r *FileRepository) AddLinkBatch(links []*links.Link) error {
+
+	// TODO доделать
+
+	// // создаем БД
+	// db := make(map[string]string)
+
+	// // загружаем данные из файла
+	// err := r.readDBFile(&db)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// // добавляем ссылку в БД
+	// db[link.Key()] = link.URL()
+
+	// // маршалим полученный объект в строку для сохранения в файле
+	// data, err := json.Marshal(&db)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// // записываем данные в файл
+	// err = os.WriteFile(r.fileName, data, 0666)
+
+	// return err
+
+	return nil
 }
 
 // находим ссылку в БД по ключу

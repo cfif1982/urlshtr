@@ -1,7 +1,9 @@
 package internal
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/cfif1982/urlshtr.git/pkg/log"
 
@@ -59,9 +61,13 @@ func (s *Server) Run(serverAddr string) error {
 	// для тестирования СУБД на локальном компе
 	// s.databaseDSN = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", `localhost`, `postgres`, `123`, `videos`)
 
+	// создаю контекст для подключения БД
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	// если указан адрес СУБД
 	if s.databaseDSN != "" {
-		linkRepo, err = linksInfra.NewPostgresRepository(s.databaseDSN)
+		linkRepo, err = linksInfra.NewPostgresRepository(ctx, s.databaseDSN)
 
 		if err != nil {
 			s.logger.Fatal("can't initialize postgres DB: " + err.Error())

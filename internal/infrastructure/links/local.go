@@ -14,17 +14,35 @@ func NewLocalRepository() *LocalRepository {
 	}
 }
 
+// узнаем - есть ли уже запись с данным ключом
+func (r *LocalRepository) CheckKey(key string) bool {
+
+	// проверяем - есть ли уже записm в БД с таким key
+	// Если запись с таким ключом существует, то true
+	_, ok := r.db[key]
+	if ok {
+		return true
+	}
+
+	return false
+}
+
 // Добавляем ссылку в базу данных
 func (r *LocalRepository) AddLink(link *links.Link) error {
 
-	// проверяем - есть ли уже записm в БД с таким key
-	_, ok := r.db[link.Key()]
-	if ok {
-		return links.ErrKeyAlreadyExist
-	}
-
-	// если такого key в БД нет, то добавляем ссылку в БД
+	// добавляем ссылку в БД
 	r.db[link.Key()] = link.URL()
+
+	return nil
+}
+
+// Добавляем ссылку в базу данных
+func (r *LocalRepository) AddLinkBatch(links []*links.Link) error {
+
+	// TODO доделать
+
+	// добавляем ссылку в БД
+	// r.db[link.Key()] = link.URL()
 
 	return nil
 }

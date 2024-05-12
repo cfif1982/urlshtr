@@ -52,12 +52,13 @@ func (h *Handler) PostAddLink(rw http.ResponseWriter, req *http.Request) {
 			h.logger.Fatal(err.Error())
 		}
 
-		// обращаемся к БД - сохраняем ссылку в БД
-		err = h.repo.AddLink(link)
+		// проверяем - есть ли такой key в
+		// если ключа нет, то сохраняем ссылку в БД, иначе генерируем новую ссылку
+		// если при создани возникла ошибка, то ее потом обрабатываем
+		if ok := h.repo.CheckKey(link.Key()); ok == false {
+			// обращаемся к БД - сохраняем ссылку в БД
+			err = h.repo.AddLink(link)
 
-		// если err равна links.ErrKeyAlreadyExist, то нужно повторить генерацию ссылки и сохранить ее еще раз
-		// во всех других случаях заканчиваем цикл(либо успешное создание ссылки, либо другая какая ошибка)
-		if err != links.ErrKeyAlreadyExist {
 			bLinkCreated = true
 		}
 	}
