@@ -55,7 +55,7 @@ func (h *Handler) PostAddLink(rw http.ResponseWriter, req *http.Request) {
 		// проверяем - есть ли такой key в
 		// если ключа нет, то сохраняем ссылку в БД, иначе генерируем новую ссылку
 		// если при создани возникла ошибка, то ее потом обрабатываем
-		if ok := h.repo.CheckKey(link.Key()); !ok {
+		if ok := h.repo.IsKeyExist(link.Key()); !ok {
 			// обращаемся к БД - сохраняем ссылку в БД
 			err = h.repo.AddLink(link)
 

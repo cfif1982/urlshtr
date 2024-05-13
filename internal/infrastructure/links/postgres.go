@@ -72,7 +72,7 @@ func NewPostgresRepository(ctx context.Context, databaseDSN string) (*PostgresRe
 }
 
 // узнаем - есть ли уже запись с данным ключом
-func (r *PostgresRepository) CheckKey(key string) bool {
+func (r *PostgresRepository) IsKeyExist(key string) bool {
 	// проверяем - есть ли уже запись в БД с таким key
 	// создаю контекст для запроса
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -83,11 +83,10 @@ func (r *PostgresRepository) CheckKey(key string) bool {
 
 	var urlKey string
 
-	err := row.Scan(&urlKey)
+	_ = row.Scan(&urlKey)
 
 	// Если запись с таким ключом существует, то true
-	// Если нашли запись, т.е. err == nil, то возвращаем true
-	return err == nil
+	return urlKey != "0"
 }
 
 // Добавляем ссылку в базу данных
@@ -189,9 +188,9 @@ func (r *PostgresRepository) AddLinkBatch(links []*links.Link) error {
 	defer cancel()
 
 	// подготавливаю запрос для транзакции
-	stmt, err := tx.PrepareContext(ctx,
-		"INSERT links(link_key, link_url)"+
-			" VALUES(?,?)")
+	stmt, err := r.db.PrepareContext(ctx,
+		"INSERT INTO links(link_key, link_url) "+
+			"VALUES ($1, $2) ON CONFLICT DO NOTHING")
 	if err != nil {
 		return err
 	}

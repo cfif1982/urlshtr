@@ -15,7 +15,7 @@ func NewLocalRepository() *LocalRepository {
 }
 
 // узнаем - есть ли уже запись с данным ключом
-func (r *LocalRepository) CheckKey(key string) bool {
+func (r *LocalRepository) IsKeyExist(key string) bool {
 
 	// проверяем - есть ли уже записm в БД с таким key
 	// Если запись с таким ключом существует, то true
@@ -36,10 +36,10 @@ func (r *LocalRepository) AddLink(link *links.Link) error {
 // Добавляем ссылку в базу данных
 func (r *LocalRepository) AddLinkBatch(links []*links.Link) error {
 
-	// TODO доделать
-
-	// добавляем ссылку в БД
-	// r.db[link.Key()] = link.URL()
+	for _, v := range links {
+		// добавляем ссылку в БД
+		r.db[v.Key()] = v.URL()
+	}
 
 	return nil
 }

@@ -10,7 +10,7 @@ import (
 type RepositoryInterface interface {
 
 	// узнаем - есть ли уже запись с данным ключом
-	CheckKey(key string) bool
+	IsKeyExist(key string) bool
 
 	// Добавить ссылку в БД
 	AddLink(link *links.Link) error

@@ -70,7 +70,7 @@ func (h *Handler) PostAddBatchLink(rw http.ResponseWriter, req *http.Request) {
 
 			// проверяем - есть ли такой key в БД
 			// если ключа нет, то добавляем ссылку в map, иначе генерируем новую ссылку
-			if ok := h.repo.CheckKey(link.Key()); !ok {
+			if ok := h.repo.IsKeyExist(link.Key()); !ok {
 
 				// сохраняем ссылку в map
 				mapLinks = append(mapLinks, link)
