@@ -50,17 +50,13 @@ func NewPostgresRepository(ctx context.Context, databaseDSN string, logger *log.
 		logger.Fatal(err.Error())
 	}
 
+	// узнаю текущую папку, чтобы передать путь к папке с миграциями
 	ex, err := os.Executable()
 	if err != nil {
-		panic(err)
+		logger.Fatal(err.Error())
 	}
 	exPath := filepath.Dir(ex)
-	// fmt.Println(exPath)
 
-	// такое указание пути к папке с миграциями на локальном компе работает, но в тестах не проходит
-	// пришлось перенести файлы в дпапку cmd/shortener/migrations и указать путь по другому
-	// err = goose.Up(db, "../../internal/infrastructure/migrations")
-	// err = goose.Up(db, exPath+"/migrations")
 	exPath = exPath + "/migrations"
 
 	err = goose.Up(db, exPath)
