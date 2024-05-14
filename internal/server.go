@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -59,7 +60,7 @@ func (s *Server) Run(serverAddr string) error {
 	)
 
 	// для тестирования СУБД на локальном компе
-	// s.databaseDSN = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", `localhost`, `postgres`, `123`, `videos`)
+	s.databaseDSN = fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable", `localhost`, `postgres`, `123`, `videos`)
 
 	// создаю контекст для подключения БД
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -67,7 +68,7 @@ func (s *Server) Run(serverAddr string) error {
 
 	// если указан адрес СУБД
 	if s.databaseDSN != "" {
-		linkRepo, err = linksInfra.NewPostgresRepository(ctx, s.databaseDSN)
+		linkRepo, err = linksInfra.NewPostgresRepository(ctx, s.databaseDSN, s.logger)
 
 		if err != nil {
 			s.logger.Fatal("can't initialize postgres DB: " + err.Error())

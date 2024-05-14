@@ -1,10 +1,13 @@
 -- +goose Up
 -- +goose StatementBegin
-UPSERT INTO links (link_key, link_url) VALUES
+INSERT INTO links (link_key, link_url) VALUES
 ('c046d12e', 'https://practicum.yandex.ru'),
 ('ce25c5e2', 'https://testsite.ru'),
 ('874288f0', 'https://helloworld.ru/hi'),
-('f4e0d7ad', 'https://onemoresite.com/qjkdyr');
+('f4e0d7ad', 'https://onemoresite.com/qjkdyr')
+ON CONFLICT (link_url) DO UPDATE SET 
+link_key = EXCLUDED.link_key,
+link_url = EXCLUDED.link_url;
 -- +goose StatementEnd
 
 -- +goose Down

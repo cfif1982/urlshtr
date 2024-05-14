@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cfif1982/urlshtr.git/pkg/log"
+	"github.com/pressly/goose/v3"
+
 	"github.com/jackc/pgerrcode"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -22,7 +25,7 @@ type PostgresRepository struct {
 }
 
 // Создаем репозиторий БД
-func NewPostgresRepository(ctx context.Context, databaseDSN string) (*PostgresRepository, error) {
+func NewPostgresRepository(ctx context.Context, databaseDSN string, logger *log.Logger) (*PostgresRepository, error) {
 
 	db, err := sql.Open("pgx", databaseDSN)
 	if err != nil {
@@ -38,30 +41,19 @@ func NewPostgresRepository(ctx context.Context, databaseDSN string) (*PostgresRe
 		return nil, err
 	}
 
-	// создаю контекст для запроса на создание таблицы
-	ctx3, cancel3 := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel3()
+	// начинаю миграцию
+	logger.Info("Start migrating database")
 
-	// если в БД нет таблицы, то создаю ее
-	query := "CREATE TABLE IF NOT EXISTS links(" +
-		"link_key TEXT," +
-		"link_url TEXT UNIQUE NOT NULL)"
-	_, err = db.ExecContext(ctx3, query)
-	if err != nil {
-		return nil, err
+	if err := goose.SetDialect("postgres"); err != nil {
+		logger.Fatal(err.Error())
 	}
 
-	// создаю контекст для запроса на создание индекса
-	ctx4, cancel4 := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel4()
-
-	// если в БД нет таблицы, то создаю ее
-	query = "CREATE UNIQUE INDEX IF NOT EXISTS idx_url " +
-		"ON links (link_url)"
-	_, err = db.ExecContext(ctx4, query)
+	err = goose.Up(db, "../../internal/infrastructure/migrations")
 	if err != nil {
-		return nil, err
+		logger.Info(err.Error())
 	}
+
+	logger.Info("migrating database finished")
 
 	return &PostgresRepository{
 		db: db,
