@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS links(
 );
 -- +goose StatementEnd
 
+
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE IF EXISTS links;

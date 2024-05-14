@@ -8,6 +8,7 @@ INSERT INTO links (link_key, link_url) VALUES
 ON CONFLICT (link_url) DO UPDATE SET 
 link_key = EXCLUDED.link_key,
 link_url = EXCLUDED.link_url;
+
 -- +goose StatementEnd
 
 -- +goose Down
