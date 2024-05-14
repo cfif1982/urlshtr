@@ -29,9 +29,6 @@ func NewPostgresRepository(ctx context.Context, databaseDSN string) (*PostgresRe
 		return nil, err
 	}
 
-	// TODO: Нужно разобраться. Если оставляю этот код, то соединене закрывается и нет доступа к БД. Где это нужно делать?
-	//defer db.Close()
-
 	// создаю контекст для пинга
 	ctx2, cancel2 := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel2()
@@ -73,6 +70,7 @@ func NewPostgresRepository(ctx context.Context, databaseDSN string) (*PostgresRe
 
 // узнаем - есть ли уже запись с данным ключом
 func (r *PostgresRepository) IsKeyExist(key string) bool {
+
 	// проверяем - есть ли уже запись в БД с таким key
 	// создаю контекст для запроса
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -127,6 +125,7 @@ func (r *PostgresRepository) GetLinkByKey(key string) (*links.Link, error) {
 	query := fmt.Sprintf("SELECT link_url FROM links WHERE link_key='%v'", key)
 	row := r.db.QueryRowContext(ctx, query)
 
+	// в эту переменную будет сканиться результат запроса
 	var urlLink string
 
 	err := row.Scan(&urlLink)
@@ -135,6 +134,7 @@ func (r *PostgresRepository) GetLinkByKey(key string) (*links.Link, error) {
 		return nil, err
 	}
 
+	// создаем объект ссылку и возвращаем ее
 	link, err := links.NewLink(key, urlLink)
 
 	if err != nil {
@@ -155,6 +155,8 @@ func (r *PostgresRepository) GetLinkByURL(URL string) (*links.Link, error) {
 	query := fmt.Sprintf("SELECT link_key FROM links WHERE link_url='%v'", URL)
 	row := r.db.QueryRowContext(ctx, query)
 
+	// в эту переменную будет сканиться результат запроса
+
 	var urlKey string
 
 	err := row.Scan(&urlKey)
@@ -163,6 +165,7 @@ func (r *PostgresRepository) GetLinkByURL(URL string) (*links.Link, error) {
 		return nil, err
 	}
 
+	// создаем объект ссылку и возвращаем ее
 	link, err := links.NewLink(urlKey, URL)
 
 	if err != nil {
