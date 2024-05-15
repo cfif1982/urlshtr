@@ -47,13 +47,13 @@ func NewPostgresRepository(ctx context.Context, databaseDSN string, logger *log.
 	logger.Info("Start migrating database")
 
 	if err := goose.SetDialect("postgres"); err != nil {
-		logger.Fatal(err.Error())
+		logger.Info(err.Error())
 	}
 
 	// узнаю текущую папку, чтобы передать путь к папке с миграциями
 	ex, err := os.Executable()
 	if err != nil {
-		logger.Fatal(err.Error())
+		logger.Info(err.Error())
 	}
 	exPath := filepath.Dir(ex)
 
