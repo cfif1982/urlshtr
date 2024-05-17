@@ -192,7 +192,7 @@ func (r *PostgresRepository) AddLinkBatch(links []*links.Link) error {
 	defer tx.Rollback()
 
 	// создаю контекст для запроса
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Second)
 	defer cancel()
 
 	// подготавливаю запрос для транзакции
@@ -227,6 +227,14 @@ func (r *PostgresRepository) GetLinksByUserID(userID int) (*[]links.Link, error)
 
 	query := fmt.Sprintf("SELECT link_url, link_key FROM links WHERE user_id='%v'", userID)
 	rows, err := r.db.QueryContext(ctx, query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if rows.Err() != nil {
+		return nil, err
+	}
 
 	// в эту переменную будет сканиться результат запроса
 	var urlLink string

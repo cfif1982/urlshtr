@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
-type UrlForResponse struct {
+type URLForResponse struct {
 	ShortURL    string `json:"short_url,omitempty"`
 	OriginalURL string `json:"original_url,omitempty"`
 }
@@ -13,13 +14,15 @@ type UrlForResponse struct {
 // Обрабатываем запрос на получение ссылок из БД по id пользлователя
 func (h *Handler) GetUserURLS(rw http.ResponseWriter, req *http.Request) {
 
-	arrUrlForResponse := []UrlForResponse{} // слайс
+	arrURLForResponse := []URLForResponse{} // слайс
 
 	// узнаем id пользователя из контекста запроса
 	userID := 0
 	if req.Context().Value(KeyUserID) != nil {
 		userID = req.Context().Value(KeyUserID).(int)
 	}
+
+	log.Printf("UserId=%v", userID)
 
 	// Если пользователь не авторизован, то выдаем собщение об этом
 	if userID == 0 {
@@ -38,20 +41,23 @@ func (h *Handler) GetUserURLS(rw http.ResponseWriter, req *http.Request) {
 
 	// сохраняем полученные данные в нужном для вывода формате
 	for _, v := range *urls {
-		arrUrlForResponse = append(
-			arrUrlForResponse,
-			UrlForResponse{
+		arrURLForResponse = append(
+			arrURLForResponse,
+			URLForResponse{
 				ShortURL:    h.baseURL + "/" + v.Key(),
 				OriginalURL: v.URL(),
 			})
 
 	}
 
+	// Устанавливаем в заголовке тип передаваемых данных
+	rw.Header().Set("Content-Type", "application/json")
+
 	// устанавливаем код 200
 	rw.WriteHeader(http.StatusOK)
 
 	// маршалим текст ответа
-	answerText, err := json.Marshal(arrUrlForResponse)
+	answerText, err := json.Marshal(arrURLForResponse)
 
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/binary"
+	"log"
 	"net/http"
 	"time"
 
@@ -25,11 +26,15 @@ const CookieName = "accessToken"
 func AuthMiddleware(h http.Handler) http.Handler {
 	authFn := func(rw http.ResponseWriter, req *http.Request) {
 
+		log.Println("start auth")
+
 		// получаем токен из куки
 		tokenFromCookie, err := req.Cookie(CookieName)
 
 		// если такой куки нет, то создаем куку
 		if err != nil {
+			log.Println("no cookie")
+
 			cookie := createCookie()
 
 			// устанавливаем созданную куку в http
@@ -44,7 +49,9 @@ func AuthMiddleware(h http.Handler) http.Handler {
 		// получаем user id из токена
 		userID := getUserIDFromToken(tokenFromCookie.Value)
 
-		// если в токенен нет узера, то pfyjdj cjplftv rere
+		log.Printf("userID from token: %v", userID)
+
+		// если в токенен нет узера, то заново создаем куку
 		if userID == -1 {
 			cookie := createCookie()
 
@@ -139,14 +146,14 @@ func buildJWTString() (string, error) {
 func createUserID() (int, error) {
 
 	// генерируем случайную последовательность из 6 байт
-	b := make([]byte, 6)
+	b := make([]byte, 3)
 	_, err := rand.Read(b)
 	if err != nil {
 		return -1, err
 	}
 
 	// преобразуем байты в число
-	userID := int(binary.BigEndian.Uint32(b))
+	userID := int(binary.BigEndian.Uint16(b))
 
 	return userID, nil
 }

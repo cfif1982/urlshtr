@@ -25,7 +25,7 @@ type RepositoryInterface interface {
 	GetLinkByURL(key string) (*links.Link, error)
 
 	// Найти ссылки в БД по user id
-	GetLinksByUserID(userId int) (*[]links.Link, error)
+	GetLinksByUserID(userID int) (*[]links.Link, error)
 
 	// узнаем - доступна ли БД
 	Ping() error
