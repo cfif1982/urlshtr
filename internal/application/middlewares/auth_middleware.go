@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/cfif1982/urlshtr.git/internal/application/handlers"
+
 	"github.com/golang-jwt/jwt/v4"
 )
 
@@ -54,7 +56,7 @@ func AuthMiddleware(h http.Handler) http.Handler {
 		}
 
 		// создаю контекст для сохранения userID
-		ctx := context.WithValue(req.Context(), "someKey", userID)
+		ctx := context.WithValue(req.Context(), handlers.KeyUserID, userID)
 
 		// обрабатываем сам запрос
 		h.ServeHTTP(rw, req.WithContext(ctx))

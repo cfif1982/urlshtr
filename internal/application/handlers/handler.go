@@ -43,3 +43,8 @@ func NewHandler(repo RepositoryInterface, base string, logger *logger.Logger) *H
 		logger:  logger,
 	}
 }
+
+// создаю свой тип для ключей контекста
+type ctxKey string
+
+const KeyUserID ctxKey = "user_id" //  ключ в контексте для поля user id
