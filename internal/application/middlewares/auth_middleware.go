@@ -40,7 +40,7 @@ func AuthMiddleware(h http.Handler) http.Handler {
 		}
 
 		// получаем user id из токена
-		userID := getUserIdFromToken(tokenFromCookie.Value)
+		userID := getUserIDFromToken(tokenFromCookie.Value)
 
 		// если в токенен нет узера, то pfyjdj cjplftv rere
 		if userID == -1 {
@@ -54,7 +54,7 @@ func AuthMiddleware(h http.Handler) http.Handler {
 		}
 
 		// создаю контекст для сохранения userID
-		ctx := context.WithValue(req.Context(), "userID", userID)
+		ctx := context.WithValue(req.Context(), "user_id", userID)
 
 		// обрабатываем сам запрос
 		h.ServeHTTP(rw, req.WithContext(ctx))
@@ -80,7 +80,7 @@ func createCookie() *http.Cookie {
 }
 
 // получаем user id из токена
-func getUserIdFromToken(tokenString string) int {
+func getUserIDFromToken(tokenString string) int {
 	claims := &Claims{}
 
 	// получаем ключ для генерации токена
@@ -107,7 +107,7 @@ func getUserIdFromToken(tokenString string) int {
 func buildJWTString() (string, error) {
 
 	// генерируем user id
-	userId, err := createUserID()
+	userID, err := createUserID()
 	if err != nil {
 		return "", err
 	}
@@ -117,7 +117,7 @@ func buildJWTString() (string, error) {
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenEXP)),
 		},
-		UserID: userId,
+		UserID: userID,
 	})
 
 	// получаем ключ для генерации токена

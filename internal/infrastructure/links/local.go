@@ -4,19 +4,20 @@ import "github.com/cfif1982/urlshtr.git/internal/domain/links"
 
 // локальный репозиторий
 type LocalRepository struct {
-	db map[int]LRLink
+	db []LRLink
 }
 
 // структура для хранения ссылк в локальном репозитории
 type LRLink struct {
-	Key string
-	URL string
+	Key    string
+	URL    string
+	UserID int
 }
 
 // Создаем локальную базу данных
 func NewLocalRepository() *LocalRepository {
 	return &LocalRepository{
-		db: make(map[int]LRLink),
+		db: make([]LRLink, 0),
 	}
 }
 
@@ -38,11 +39,13 @@ func (r *LocalRepository) IsKeyExist(key string) bool {
 func (r *LocalRepository) AddLink(link *links.Link) error {
 
 	l := LRLink{
-		Key: link.Key(),
-		URL: link.URL(),
+		Key:    link.Key(),
+		URL:    link.URL(),
+		UserID: link.UserID(),
 	}
+
 	// добавляем ссылку в БД
-	r.db[link.UserID()] = l
+	r.db = append(r.db, l)
 
 	return nil
 }
@@ -52,11 +55,12 @@ func (r *LocalRepository) AddLinkBatch(links []*links.Link) error {
 
 	for _, v := range links {
 		l := LRLink{
-			Key: v.Key(),
-			URL: v.URL(),
+			Key:    v.Key(),
+			URL:    v.URL(),
+			UserID: v.UserID(),
 		}
 		// добавляем ссылку в БД
-		r.db[v.UserID()] = l
+		r.db = append(r.db, l)
 	}
 
 	return nil
@@ -66,13 +70,13 @@ func (r *LocalRepository) AddLinkBatch(links []*links.Link) error {
 func (r *LocalRepository) GetLinkByKey(key string) (*links.Link, error) {
 
 	// ищем запись
-	for k, v := range r.db {
+	for _, v := range r.db {
 		if v.Key == key {
 			// я так понял, что в DDD не стоит возвращать сслыки на объекты или сами объекты
 			// лучше создавать новый объект, копировать в него свойства найденного объекта
 			// и уже этот новый объект возвращать
 			// я правильно понял?
-			link, err := links.NewLink(key, v.URL, k)
+			link, err := links.NewLink(key, v.URL, v.UserID)
 
 			if err != nil {
 				return nil, err
@@ -89,9 +93,9 @@ func (r *LocalRepository) GetLinkByKey(key string) (*links.Link, error) {
 func (r *LocalRepository) GetLinkByURL(URL string) (*links.Link, error) {
 
 	// ищем запись
-	for k, v := range r.db {
+	for _, v := range r.db {
 		if v.URL == URL {
-			link, err := links.NewLink(v.Key, URL, k)
+			link, err := links.NewLink(v.Key, URL, v.UserID)
 
 			if err != nil {
 				return nil, err

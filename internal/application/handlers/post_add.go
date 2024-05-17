@@ -48,8 +48,8 @@ func (h *Handler) PostAddLink(rw http.ResponseWriter, req *http.Request) {
 	for !bLinkCreated {
 		// узнаем id пользователя из контекста запроса
 		userID := 0
-		if req.Context().Value("userID") != nil {
-			userID = req.Context().Value("userID").(int)
+		if req.Context().Value("user_id") != nil {
+			userID = req.Context().Value("user_id").(int)
 		}
 
 		// обращаемся к domain - создаем объект ССЫЛКА
