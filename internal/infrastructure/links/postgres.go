@@ -125,20 +125,21 @@ func (r *PostgresRepository) GetLinkByKey(key string) (*links.Link, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query := fmt.Sprintf("SELECT link_url FROM links WHERE link_key='%v'", key)
+	query := fmt.Sprintf("SELECT link_url, user_id FROM links WHERE link_key='%v'", key)
 	row := r.db.QueryRowContext(ctx, query)
 
 	// в эту переменную будет сканиться результат запроса
 	var urlLink string
+	var userID int
 
-	err := row.Scan(&urlLink)
+	err := row.Scan(&urlLink, &userID)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// создаем объект ссылку и возвращаем ее
-	link, err := links.NewLink(key, urlLink)
+	link, err := links.NewLink(key, urlLink, userID)
 
 	if err != nil {
 		return nil, err
@@ -155,21 +156,22 @@ func (r *PostgresRepository) GetLinkByURL(URL string) (*links.Link, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query := fmt.Sprintf("SELECT link_key FROM links WHERE link_url='%v'", URL)
+	query := fmt.Sprintf("SELECT link_key, user_id FROM links WHERE link_url='%v'", URL)
 	row := r.db.QueryRowContext(ctx, query)
 
 	// в эту переменную будет сканиться результат запроса
 
 	var urlKey string
+	var userID int
 
-	err := row.Scan(&urlKey)
+	err := row.Scan(&urlKey, &userID)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// создаем объект ссылку и возвращаем ее
-	link, err := links.NewLink(urlKey, URL)
+	link, err := links.NewLink(urlKey, URL, userID)
 
 	if err != nil {
 		return nil, err

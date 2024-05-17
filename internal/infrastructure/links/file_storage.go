@@ -13,6 +13,12 @@ type FileRepository struct {
 	fileName string
 }
 
+// структура для хранения ссылк в файловом репозитории
+type FRLink struct {
+	Key string
+	URL string
+}
+
 // Создаем файл для хранения БД
 func NewFileRepository(fileName string) (*FileRepository, error) {
 
@@ -61,7 +67,7 @@ func NewFileRepository(fileName string) (*FileRepository, error) {
 func (r *FileRepository) IsKeyExist(key string) bool {
 
 	// создаем БД
-	db := make(map[string]string)
+	db := make(map[int]FRLink)
 
 	// загружаем данные из файла
 	err := r.readDBFile(&db)
@@ -69,17 +75,22 @@ func (r *FileRepository) IsKeyExist(key string) bool {
 		return false
 	}
 
-	// проверяем - есть ли уже запись в БД с таким key
-	_, ok := db[key]
+	// проверяем - есть ли уже записm в БД с таким key
+	// Если запись с таким ключом существует, то true
+	for _, v := range db {
+		if v.Key == key {
+			return true
+		}
+	}
 
-	return ok
+	return false
 }
 
 // Добавляем ссылку в базу данных
 func (r *FileRepository) AddLink(link *links.Link) error {
 
 	// создаем БД
-	db := make(map[string]string)
+	db := make(map[int]FRLink)
 
 	// загружаем данные из файла
 	err := r.readDBFile(&db)
@@ -87,8 +98,12 @@ func (r *FileRepository) AddLink(link *links.Link) error {
 		return err
 	}
 
+	l := FRLink{
+		Key: link.Key(),
+		URL: link.URL(),
+	}
 	// добавляем ссылку в БД
-	db[link.Key()] = link.URL()
+	db[link.UserID()] = l
 
 	// маршалим полученный объект в строку для сохранения в файле
 	data, err := json.Marshal(&db)
@@ -106,7 +121,7 @@ func (r *FileRepository) AddLink(link *links.Link) error {
 func (r *FileRepository) AddLinkBatch(links []*links.Link) error {
 
 	// создаем БД
-	db := make(map[string]string)
+	db := make(map[int]FRLink)
 
 	// загружаем данные из файла
 	err := r.readDBFile(&db)
@@ -115,8 +130,12 @@ func (r *FileRepository) AddLinkBatch(links []*links.Link) error {
 	}
 
 	for _, v := range links {
+		l := FRLink{
+			Key: v.Key(),
+			URL: v.URL(),
+		}
 		// добавляем ссылку в БД
-		db[v.Key()] = v.URL()
+		db[v.UserID()] = l
 	}
 
 	// маршалим полученный объект в строку для сохранения в файле
@@ -136,7 +155,7 @@ func (r *FileRepository) AddLinkBatch(links []*links.Link) error {
 func (r *FileRepository) GetLinkByKey(key string) (*links.Link, error) {
 
 	// создаем БД
-	db := make(map[string]string)
+	db := make(map[int]FRLink)
 
 	// загружаем данные из файла
 	err := r.readDBFile(&db)
@@ -144,19 +163,23 @@ func (r *FileRepository) GetLinkByKey(key string) (*links.Link, error) {
 		return nil, err
 	}
 
-	// пробегаемся по БД и ищем нужную ссылку
+	// ищем запись
 	for k, v := range db {
-		// если ссылка найдена, то возвращаем ее
-		if k == key {
-			link, err := links.NewLink(k, v)
+		if v.Key == key {
+			// я так понял, что в DDD не стоит возвращать сслыки на объекты или сами объекты
+			// лучше создавать новый объект, копировать в него свойства найденного объекта
+			// и уже этот новый объект возвращать
+			// я правильно понял?
+			link, err := links.NewLink(key, v.URL, k)
+
 			if err != nil {
 				return nil, err
 			}
+
 			return link, nil
 		}
 	}
 
-	// если ссылка не найдена, то возвращаем ошибку
 	return nil, links.ErrLinkNotFound
 }
 
@@ -164,7 +187,7 @@ func (r *FileRepository) GetLinkByKey(key string) (*links.Link, error) {
 func (r *FileRepository) GetLinkByURL(URL string) (*links.Link, error) {
 
 	// создаем БД
-	db := make(map[string]string)
+	db := make(map[int]FRLink)
 
 	// загружаем данные из файла
 	err := r.readDBFile(&db)
@@ -172,19 +195,19 @@ func (r *FileRepository) GetLinkByURL(URL string) (*links.Link, error) {
 		return nil, err
 	}
 
-	// пробегаемся по БД и ищем нужную ссылку
+	// ищем запись
 	for k, v := range db {
-		// если ссылка найдена, то возвращаем ее
-		if v == URL {
-			link, err := links.NewLink(k, v)
+		if v.URL == URL {
+			link, err := links.NewLink(v.Key, URL, k)
+
 			if err != nil {
 				return nil, err
 			}
+
 			return link, nil
 		}
 	}
 
-	// если ссылка не найдена, то возвращаем ошибку
 	return nil, links.ErrLinkNotFound
 }
 
@@ -195,7 +218,7 @@ func (r *FileRepository) Ping() error {
 }
 
 // читаем файл БД
-func (r *FileRepository) readDBFile(db *map[string]string) error {
+func (r *FileRepository) readDBFile(db *map[int]FRLink) error {
 
 	// читаем данные из файла
 	data, err := os.ReadFile(r.fileName)

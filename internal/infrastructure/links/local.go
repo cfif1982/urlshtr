@@ -4,13 +4,19 @@ import "github.com/cfif1982/urlshtr.git/internal/domain/links"
 
 // локальный репозиторий
 type LocalRepository struct {
-	db map[string]string
+	db map[int]LRLink
+}
+
+// структура для хранения ссылк в локальном репозитории
+type LRLink struct {
+	Key string
+	URL string
 }
 
 // Создаем локальную базу данных
 func NewLocalRepository() *LocalRepository {
 	return &LocalRepository{
-		db: make(map[string]string),
+		db: make(map[int]LRLink),
 	}
 }
 
@@ -19,16 +25,24 @@ func (r *LocalRepository) IsKeyExist(key string) bool {
 
 	// проверяем - есть ли уже записm в БД с таким key
 	// Если запись с таким ключом существует, то true
-	_, ok := r.db[key]
+	for _, v := range r.db {
+		if v.Key == key {
+			return true
+		}
+	}
 
-	return ok
+	return false
 }
 
 // Добавляем ссылку в базу данных
 func (r *LocalRepository) AddLink(link *links.Link) error {
 
+	l := LRLink{
+		Key: link.Key(),
+		URL: link.URL(),
+	}
 	// добавляем ссылку в БД
-	r.db[link.Key()] = link.URL()
+	r.db[link.UserID()] = l
 
 	return nil
 }
@@ -37,8 +51,12 @@ func (r *LocalRepository) AddLink(link *links.Link) error {
 func (r *LocalRepository) AddLinkBatch(links []*links.Link) error {
 
 	for _, v := range links {
+		l := LRLink{
+			Key: v.Key(),
+			URL: v.URL(),
+		}
 		// добавляем ссылку в БД
-		r.db[v.Key()] = v.URL()
+		r.db[v.UserID()] = l
 	}
 
 	return nil
@@ -48,33 +66,13 @@ func (r *LocalRepository) AddLinkBatch(links []*links.Link) error {
 func (r *LocalRepository) GetLinkByKey(key string) (*links.Link, error) {
 
 	// ищем запись
-	l, ok := r.db[key]
-
-	if !ok {
-		return nil, links.ErrLinkNotFound
-	}
-
-	// я так понял, что в DDD не стоит возвращать сслыки на объекты или сами объекты
-	// лучше создавать новый объект, копировать в него свойства найденного объекта
-	// и уже этот новый объект возвращать
-	// я правильно понял?
-	link, err := links.NewLink(key, l)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return link, nil
-}
-
-// находим ссылку в БД по URL
-func (r *LocalRepository) GetLinkByURL(URL string) (*links.Link, error) {
-
-	// ищем запись
 	for k, v := range r.db {
-
-		if v == URL {
-			link, err := links.NewLink(k, v)
+		if v.Key == key {
+			// я так понял, что в DDD не стоит возвращать сслыки на объекты или сами объекты
+			// лучше создавать новый объект, копировать в него свойства найденного объекта
+			// и уже этот новый объект возвращать
+			// я правильно понял?
+			link, err := links.NewLink(key, v.URL, k)
 
 			if err != nil {
 				return nil, err
@@ -83,6 +81,26 @@ func (r *LocalRepository) GetLinkByURL(URL string) (*links.Link, error) {
 			return link, nil
 		}
 	}
+
+	return nil, links.ErrLinkNotFound
+}
+
+// находим ссылку в БД по URL
+func (r *LocalRepository) GetLinkByURL(URL string) (*links.Link, error) {
+
+	// ищем запись
+	for k, v := range r.db {
+		if v.URL == URL {
+			link, err := links.NewLink(v.Key, URL, k)
+
+			if err != nil {
+				return nil, err
+			}
+
+			return link, nil
+		}
+	}
+
 	return nil, links.ErrLinkNotFound
 }
 

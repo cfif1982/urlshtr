@@ -111,6 +111,7 @@ func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 	// создаем роутер
 	router := chi.NewRouter()
 
+	router.Use(middlewares.AuthMiddleware)
 	router.Use(middlewares.GzipCompressMiddleware)
 	router.Use(middlewares.GzipDecompressMiddleware)
 
