@@ -17,55 +17,66 @@ type Claims struct {
 	UserID int
 }
 
-const TOKEN_EXP = time.Hour * 3
-const COOKIE_NAME = "accessToken"
+const TokenEXP = time.Hour * 3
+const CookieName = "accessToken"
 
 func AuthMiddleware(h http.Handler) http.Handler {
 	authFn := func(rw http.ResponseWriter, req *http.Request) {
 
 		// получаем токен из куки
-		tokenFromCookie, err := req.Cookie(COOKIE_NAME)
+		tokenFromCookie, err := req.Cookie(CookieName)
 
-		// если такой куки нет, то создаем куку и выдаем сообщение об этом и сттус http.StatusUnauthorized
+		// если такой куки нет, то создаем куку
 		if err != nil {
-			// строим строку токена для куки
-			token, _ := buildJWTString()
-
-			// создаем куку в http
-			cookie := http.Cookie{}
-			cookie.Name = COOKIE_NAME
-			cookie.Value = token
-			cookie.Expires = time.Now().Add(TOKEN_EXP)
-			cookie.Path = "/"
+			cookie := createCookie()
 
 			// устанавливаем созданную куку в http
-			http.SetCookie(rw, &cookie)
+			http.SetCookie(rw, cookie)
 
-			// выводим сообщение об ошибке
-			http.Error(rw, "token missed", http.StatusUnauthorized)
+			// обрабатываем запрос
+			h.ServeHTTP(rw, req)
 
 			return
 		}
 
 		// получаем user id из токена
-		userId := getUserIdFromToken(tokenFromCookie.Value)
+		userID := getUserIdFromToken(tokenFromCookie.Value)
 
-		// если в токенен нет узера, то сообщаем об этом
-		if userId == -1 {
-			// выводим сообщение об ошибке и статус http.StatusNoContent
-			http.Error(rw, "token missed", http.StatusNoContent)
+		// если в токенен нет узера, то pfyjdj cjplftv rere
+		if userID == -1 {
+			cookie := createCookie()
 
-			return
+			// устанавливаем созданную куку в http
+			http.SetCookie(rw, cookie)
+
+			// обрабатываем запрос
+			h.ServeHTTP(rw, req)
 		}
 
 		// создаю контекст для сохранения userID
-		ctx := context.WithValue(req.Context(), "userID", userId)
+		ctx := context.WithValue(req.Context(), "userID", userID)
 
 		// обрабатываем сам запрос
 		h.ServeHTTP(rw, req.WithContext(ctx))
 	}
 
 	return http.HandlerFunc(authFn)
+}
+
+// создаем куку
+func createCookie() *http.Cookie {
+
+	// строим строку токена для куки
+	token, _ := buildJWTString()
+
+	// создаем куку в http
+	cookie := http.Cookie{}
+	cookie.Name = CookieName
+	cookie.Value = token
+	cookie.Expires = time.Now().Add(TokenEXP)
+	cookie.Path = "/"
+
+	return &cookie
 }
 
 // получаем user id из токена
@@ -104,7 +115,7 @@ func buildJWTString() (string, error) {
 	// создаём новый токен с алгоритмом подписи HS256 и утверждениями — Claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TOKEN_EXP)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenEXP)),
 		},
 		UserID: userId,
 	})
@@ -141,7 +152,7 @@ func createUserID() (int, error) {
 // получаем ключ для генерции токена
 func getKeyForTokenGeneration() []byte {
 
-	SECRET_KEY := "supersecretkey"
+	SecretKEY := "supersecretkey"
 
-	return []byte(SECRET_KEY)
+	return []byte(SecretKEY)
 }

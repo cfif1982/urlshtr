@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/cfif1982/urlshtr.git/pkg/log"
+	"github.com/cfif1982/urlshtr.git/pkg/logger"
 	"github.com/pressly/goose/v3"
 
 	"github.com/jackc/pgerrcode"
@@ -27,7 +27,7 @@ type PostgresRepository struct {
 }
 
 // Создаем репозиторий БД
-func NewPostgresRepository(ctx context.Context, databaseDSN string, logger *log.Logger) (*PostgresRepository, error) {
+func NewPostgresRepository(ctx context.Context, databaseDSN string, logger *logger.Logger) (*PostgresRepository, error) {
 
 	db, err := sql.Open("pgx", databaseDSN)
 	if err != nil {

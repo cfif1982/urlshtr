@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
+	"log"
 
 	"github.com/caarlos0/env"
 	"github.com/cfif1982/urlshtr.git/internal"
-	"github.com/cfif1982/urlshtr.git/pkg/log"
+	"github.com/cfif1982/urlshtr.git/pkg/logger"
 )
 
 // iter10
@@ -21,10 +22,11 @@ type Config struct {
 func main() {
 
 	// инициализируем логгер
-	logger, err := log.GetLogger()
+	logger, err := logger.GetLogger()
 
+	// Если логгер не инициализировался, то выводим сообщение с помощью обычного log
 	if err != nil {
-		logger.Fatal("cannot initialize zap")
+		log.Fatal("cannot initialize zap")
 	}
 
 	// выводим сообщенеи об успешной инициализации логгера

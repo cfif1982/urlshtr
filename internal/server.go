@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/cfif1982/urlshtr.git/pkg/log"
+	"github.com/cfif1982/urlshtr.git/pkg/logger"
 
 	"github.com/cfif1982/urlshtr.git/internal/application/handlers"
 	"github.com/cfif1982/urlshtr.git/internal/application/middlewares"
@@ -20,11 +20,11 @@ type Server struct {
 	serverBaseURL   string
 	FileStoragePath string
 	databaseDSN     string
-	logger          *log.Logger
+	logger          *logger.Logger
 }
 
 // Конструктор Server
-func NewServer(addr, base, storage, dsn string, logger *log.Logger) Server {
+func NewServer(addr, base, storage, dsn string, logger *logger.Logger) Server {
 	return Server{
 		serverAddress:   addr,
 		serverBaseURL:   base,

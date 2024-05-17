@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/cfif1982/urlshtr.git/pkg/log"
+	"github.com/cfif1982/urlshtr.git/pkg/logger"
 
 	"github.com/cfif1982/urlshtr.git/internal"
 	"github.com/cfif1982/urlshtr.git/internal/application/handlers"
@@ -41,7 +41,7 @@ func TestGetLinkByKey(t *testing.T) {
 	}
 
 	// инициализируем логгер
-	logger, _ := log.GetLogger()
+	logger, _ := logger.GetLogger()
 
 	// создаем сервер
 	// Его создаем для того, чтобы можно было получить доступ к его функциям, а не для его запуска

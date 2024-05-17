@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/cfif1982/urlshtr.git/pkg/log"
+	"github.com/cfif1982/urlshtr.git/pkg/logger"
 
 	"github.com/cfif1982/urlshtr.git/internal/domain/links"
 )
@@ -32,11 +32,11 @@ type RepositoryInterface interface {
 type Handler struct {
 	repo    RepositoryInterface
 	baseURL string
-	logger  *log.Logger
+	logger  *logger.Logger
 }
 
 // создаем новый хэндлер
-func NewHandler(repo RepositoryInterface, base string, logger *log.Logger) *Handler {
+func NewHandler(repo RepositoryInterface, base string, logger *logger.Logger) *Handler {
 	return &Handler{
 		repo:    repo,
 		baseURL: base,
