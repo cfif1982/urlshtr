@@ -97,7 +97,7 @@ func (r *PostgresRepository) AddLink(link *links.Link) error {
 	ctx1, cancel1 := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel1()
 
-	query := fmt.Sprintf("INSERT INTO links(link_key, link_url) VALUES ('%v', '%v')", link.Key(), link.URL())
+	query := fmt.Sprintf("INSERT INTO links(link_key, link_url, user_id) VALUES ('%v', '%v', '%v')", link.Key(), link.URL(), link.UserID())
 	_, err := r.db.ExecContext(ctx1, query)
 	if err != nil {
 		// проверяем ошибку на предмет вставки URL который уже есть в БД
@@ -197,8 +197,8 @@ func (r *PostgresRepository) AddLinkBatch(links []*links.Link) error {
 
 	// подготавливаю запрос для транзакции
 	stmt, err := r.db.PrepareContext(ctx,
-		"INSERT INTO links(link_key, link_url) "+
-			"VALUES ($1, $2) ON CONFLICT DO NOTHING")
+		"INSERT INTO links(link_key, link_url, user_id) "+
+			"VALUES ($1, $2, $3) ON CONFLICT DO NOTHING")
 	if err != nil {
 		return err
 	}
@@ -206,7 +206,7 @@ func (r *PostgresRepository) AddLinkBatch(links []*links.Link) error {
 
 	// добавляю запросы в транзакцю
 	for _, v := range links {
-		_, err := stmt.ExecContext(ctx, v.Key(), v.URL())
+		_, err := stmt.ExecContext(ctx, v.Key(), v.URL(), v.UserID())
 		if err != nil {
 			return err
 		}

@@ -54,7 +54,7 @@ func AuthMiddleware(h http.Handler) http.Handler {
 		}
 
 		// создаю контекст для сохранения userID
-		ctx := context.WithValue(req.Context(), "user_id", userID)
+		ctx := context.WithValue(req.Context(), "user_id_key", userID)
 
 		// обрабатываем сам запрос
 		h.ServeHTTP(rw, req.WithContext(ctx))
