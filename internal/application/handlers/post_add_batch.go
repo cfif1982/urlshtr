@@ -59,8 +59,8 @@ func (h *Handler) PostAddBatchLink(rw http.ResponseWriter, req *http.Request) {
 		for !bLinkCreated {
 			// узнаем id пользователя из контекста запроса
 			userID := 0
-			if req.Context().Value("user_id_key") != nil {
-				userID = req.Context().Value("user_id_key").(int)
+			if req.Context().Value("someKey") != nil {
+				userID = req.Context().Value("someKey").(int)
 			}
 
 			// обращаемся к domain - создаем объект ССЫЛКА
