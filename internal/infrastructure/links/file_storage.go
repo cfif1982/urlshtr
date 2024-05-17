@@ -215,6 +215,36 @@ func (r *FileRepository) GetLinkByURL(URL string) (*links.Link, error) {
 	return nil, links.ErrLinkNotFound
 }
 
+// находим ссылки в БД по user id
+func (r *FileRepository) GetLinksByUserID(userID int) (*[]links.Link, error) {
+
+	// создаем БД
+	db := make([]FRLink, 0)
+
+	// загружаем данные из файла
+	err := r.readDBFile(&db)
+	if err != nil {
+		return nil, err
+	}
+
+	arrLinks := make([]links.Link, 0)
+
+	// ищем запись
+	for _, v := range db {
+		if v.UserID == userID {
+			link, err := links.NewLink(v.Key, v.URL, userID)
+
+			if err != nil {
+				return nil, err
+			}
+
+			arrLinks = append(arrLinks, *link)
+		}
+	}
+
+	return &arrLinks, nil
+}
+
 // узнаем доступность базы данных. Вернем nil, т.к. эта функция нуна для БД, а здесь всавил ее для совместимости интрефейсов
 func (r *FileRepository) Ping() error {
 

@@ -108,6 +108,27 @@ func (r *LocalRepository) GetLinkByURL(URL string) (*links.Link, error) {
 	return nil, links.ErrLinkNotFound
 }
 
+// находим ссылки в БД по user id
+func (r *LocalRepository) GetLinksByUserID(userID int) (*[]links.Link, error) {
+
+	arrLinks := make([]links.Link, 0)
+
+	// ищем запись
+	for _, v := range r.db {
+		if v.UserID == userID {
+			link, err := links.NewLink(v.Key, v.URL, userID)
+
+			if err != nil {
+				return nil, err
+			}
+
+			arrLinks = append(arrLinks, *link)
+		}
+	}
+
+	return &arrLinks, nil
+}
+
 // узнаем доступность базы данных. Локальный репозиторий всегда доступен
 func (r *LocalRepository) Ping() error {
 

@@ -216,6 +216,43 @@ func (r *PostgresRepository) AddLinkBatch(links []*links.Link) error {
 	return tx.Commit()
 }
 
+// находим ссылки в БД по user id
+func (r *PostgresRepository) GetLinksByUserID(userID int) (*[]links.Link, error) {
+
+	arrLinks := make([]links.Link, 0)
+
+	// создаю контекст для запроса
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	query := fmt.Sprintf("SELECT link_url, link_key FROM links WHERE user_id='%v'", userID)
+	rows, err := r.db.QueryContext(ctx, query)
+
+	// в эту переменную будет сканиться результат запроса
+	var urlLink string
+	var urlKey string
+
+	// пробегаем по всем записям
+	for rows.Next() {
+		err = rows.Scan(&urlLink, &urlKey)
+
+		if err != nil {
+			return nil, err
+		}
+
+		// создаем объект ссылку и возвращаем ее
+		link, err := links.NewLink(urlKey, urlLink, userID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		arrLinks = append(arrLinks, *link)
+	}
+
+	return &arrLinks, nil
+}
+
 // узнаем доступность базы данных
 func (r *PostgresRepository) Ping() error {
 
