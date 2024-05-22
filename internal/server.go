@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/cfif1982/urlshtr.git/pkg/log"
+	"github.com/cfif1982/urlshtr.git/pkg/logger"
 
 	"github.com/cfif1982/urlshtr.git/internal/application/handlers"
 	"github.com/cfif1982/urlshtr.git/internal/application/middlewares"
@@ -20,11 +20,11 @@ type Server struct {
 	serverBaseURL   string
 	FileStoragePath string
 	databaseDSN     string
-	logger          *log.Logger
+	logger          *logger.Logger
 }
 
 // Конструктор Server
-func NewServer(addr, base, storage, dsn string, logger *log.Logger) Server {
+func NewServer(addr, base, storage, dsn string, logger *logger.Logger) Server {
 	return Server{
 		serverAddress:   addr,
 		serverBaseURL:   base,
@@ -111,12 +111,14 @@ func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 	// создаем роутер
 	router := chi.NewRouter()
 
+	router.Use(middlewares.AuthMiddleware)
 	router.Use(middlewares.GzipCompressMiddleware)
 	router.Use(middlewares.GzipDecompressMiddleware)
 
 	// назначаем хэндлеры для обработки запросов пользователя
 	router.Get(`/{key}`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.GetLinkByKey)))
 	router.Get(`/ping`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.Ping)))
+	router.Get(`/api/user/urls`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.GetUserURLS)))
 	router.Post(`/`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.AddLink)))
 	router.Post(`/api/shorten`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.PostAddLink)))
 	router.Post(`/api/shorten/batch`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.PostAddBatchLink)))

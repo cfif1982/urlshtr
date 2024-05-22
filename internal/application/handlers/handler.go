@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/cfif1982/urlshtr.git/pkg/log"
+	"github.com/cfif1982/urlshtr.git/pkg/logger"
 
 	"github.com/cfif1982/urlshtr.git/internal/domain/links"
 )
@@ -24,6 +24,9 @@ type RepositoryInterface interface {
 	// Найти ссылку в БД по url
 	GetLinkByURL(key string) (*links.Link, error)
 
+	// Найти ссылки в БД по user id
+	GetLinksByUserID(userID int) (*[]links.Link, error)
+
 	// узнаем - доступна ли БД
 	Ping() error
 }
@@ -32,14 +35,19 @@ type RepositoryInterface interface {
 type Handler struct {
 	repo    RepositoryInterface
 	baseURL string
-	logger  *log.Logger
+	logger  *logger.Logger
 }
 
 // создаем новый хэндлер
-func NewHandler(repo RepositoryInterface, base string, logger *log.Logger) *Handler {
+func NewHandler(repo RepositoryInterface, base string, logger *logger.Logger) *Handler {
 	return &Handler{
 		repo:    repo,
 		baseURL: base,
 		logger:  logger,
 	}
 }
+
+// создаю свой тип для ключей контекста
+type ctxKey string
+
+const KeyUserID ctxKey = "user_id" //  ключ в контексте для поля user id

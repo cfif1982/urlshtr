@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/cfif1982/urlshtr.git/pkg/log"
+	"github.com/cfif1982/urlshtr.git/pkg/logger"
 )
 
 type (
@@ -45,7 +45,7 @@ func (r *loggingResponseWriter) WriteHeader(statusCode int) {
 }
 
 // middleware для логирования хэндлеров
-func LogMiddleware(logger *log.Logger, h http.Handler) http.HandlerFunc {
+func LogMiddleware(logger *logger.Logger, h http.Handler) http.HandlerFunc {
 
 	logFn := func(rw http.ResponseWriter, req *http.Request) {
 

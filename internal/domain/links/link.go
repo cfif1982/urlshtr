@@ -15,25 +15,27 @@ var (
 
 // структура для хранения объекта ССЫЛКА
 type Link struct {
-	key string
-	url string
+	key    string
+	url    string
+	userID int
 }
 
 // создаем новый объект ССЫЛКА
 // нужна для использвания в других пакетах
-func NewLink(key string, url string) (*Link, error) {
+func NewLink(key string, url string, userID int) (*Link, error) {
 	return &Link{
-		key: key,
-		url: url,
+		key:    key,
+		url:    url,
+		userID: userID,
 	}, nil
 }
 
 // Создаем новую ССЫЛКУ
-func CreateLink(url string) (*Link, error) {
+func CreateLink(url string, userID int) (*Link, error) {
 
 	key := generateKey()
 
-	return NewLink(key, url)
+	return NewLink(key, url, userID)
 }
 
 // генерируем key
@@ -53,4 +55,9 @@ func (l *Link) Key() string {
 // возвращщаем поле URL
 func (l *Link) URL() string {
 	return l.url
+}
+
+// возвращщаем поле UserID
+func (l *Link) UserID() int {
+	return l.userID
 }

@@ -1,6 +1,7 @@
-package log
+package logger
 
 import (
+	"github.com/mattn/go-colorable"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -15,11 +16,14 @@ type Logger struct {
 
 // получаем логгер
 func GetLogger() (*Logger, error) {
-	logger, err := zap.NewDevelopment()
-
-	if err != nil {
-		return &Logger{}, err
-	}
+	// настраиваем цветной вывод в лог
+	config := zap.NewDevelopmentEncoderConfig()
+	config.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	logger := zap.New(zapcore.NewCore(
+		zapcore.NewConsoleEncoder(config),
+		zapcore.AddSync(colorable.NewColorableStdout()),
+		zapcore.DebugLevel,
+	))
 
 	// это нужно добавить, если логер буферизован
 	// в данном случае не буферизован, но привычка хорошая

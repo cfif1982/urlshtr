@@ -29,8 +29,14 @@ func (h *Handler) AddLink(rw http.ResponseWriter, req *http.Request) {
 	// повторяем цикл до тех пор, пока ссылка не создастся.
 	// Делаю на случай существования такого ключа
 	for !bLinkCreated {
+		// узнаем id пользователя из контекста запроса
+		userID := 0
+		if req.Context().Value(KeyUserID) != nil {
+			userID = req.Context().Value(KeyUserID).(int)
+		}
+
 		// обращаемся к domain - создаем объект ССЫЛКА
-		link, err = links.CreateLink(string(body))
+		link, err = links.CreateLink(string(body), userID)
 		if err != nil {
 			h.logger.Fatal(err.Error())
 		}
