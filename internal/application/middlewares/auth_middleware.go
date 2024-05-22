@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/binary"
-	"log"
 	"net/http"
 	"time"
 
@@ -21,27 +20,49 @@ type Claims struct {
 }
 
 const TokenEXP = time.Hour * 3
-const CookieName = "accessToken"
+const CookieName = "accessToken2"
 
 func AuthMiddleware(h http.Handler) http.Handler {
 	authFn := func(rw http.ResponseWriter, req *http.Request) {
-
-		log.Println("start auth")
 
 		// получаем токен из куки
 		tokenFromCookie, err := req.Cookie(CookieName)
 
 		// если такой куки нет, то создаем куку
 		if err != nil {
-			log.Println("no cookie")
+			// генерируем user id
+			userID, err := createUserID()
+			if err != nil {
+				http.Error(rw, "user create error", http.StatusInternalServerError)
+				return
+			}
 
-			cookie := createCookie()
+			cookie := createCookie(userID)
 
 			// устанавливаем созданную куку в http
 			http.SetCookie(rw, cookie)
 
-			// обрабатываем запрос
-			h.ServeHTTP(rw, req)
+			// тут по заданию сказано, что если при обращении по /api/user/urls нужно проверять условие:
+			// если не авторизован, то нужно вывести сообщение об этом
+			// но другое условие - при обращении на добавление: если не авторизован, то создать user id и авторизовать
+			// я сделал так: при обращении по любому адресу если не авторизован, то создаю user id и авторизую
+			// но из-за этого приходится тут проверять адрес и делать исключение
+			// хотя по логике нужно делать так, как ты говорил - отдельным запросом авторизация и уже дальше вся логика
+			// а так приходится костыль такой делать((
+			// узнаю адрес запроса
+			uri := req.RequestURI
+
+			// если запрос на вывод всех url пользователя, то не сохраняем user id
+			if uri != "/api/user/urls" {
+				// создаю контекст для сохранения userID
+				ctx := context.WithValue(req.Context(), handlers.KeyUserID, userID)
+
+				// обрабатываем запрос
+				h.ServeHTTP(rw, req.WithContext(ctx))
+			} else {
+				// обрабатываем запрос
+				h.ServeHTTP(rw, req)
+			}
 
 			return
 		}
@@ -49,17 +70,25 @@ func AuthMiddleware(h http.Handler) http.Handler {
 		// получаем user id из токена
 		userID := getUserIDFromToken(tokenFromCookie.Value)
 
-		log.Printf("userID from token: %v", userID)
-
 		// если в токенен нет узера, то заново создаем куку
 		if userID == -1 {
-			cookie := createCookie()
+			// генерируем user id
+			userID, err := createUserID()
+			if err != nil {
+				http.Error(rw, "user create error", http.StatusInternalServerError)
+				return
+			}
+
+			cookie := createCookie(userID)
 
 			// устанавливаем созданную куку в http
 			http.SetCookie(rw, cookie)
 
+			// создаю контекст для сохранения userID
+			ctx := context.WithValue(req.Context(), handlers.KeyUserID, userID)
+
 			// обрабатываем запрос
-			h.ServeHTTP(rw, req)
+			h.ServeHTTP(rw, req.WithContext(ctx))
 		}
 
 		// создаю контекст для сохранения userID
@@ -73,10 +102,10 @@ func AuthMiddleware(h http.Handler) http.Handler {
 }
 
 // создаем куку
-func createCookie() *http.Cookie {
+func createCookie(userID int) *http.Cookie {
 
 	// строим строку токена для куки
-	token, _ := buildJWTString()
+	token, _ := buildJWTString(userID)
 
 	// создаем куку в http
 	cookie := http.Cookie{}
@@ -113,13 +142,7 @@ func getUserIDFromToken(tokenString string) int {
 }
 
 // строим строку для токена
-func buildJWTString() (string, error) {
-
-	// генерируем user id
-	userID, err := createUserID()
-	if err != nil {
-		return "", err
-	}
+func buildJWTString(userID int) (string, error) {
 
 	// создаём новый токен с алгоритмом подписи HS256 и утверждениями — Claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
