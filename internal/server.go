@@ -122,6 +122,7 @@ func (s *Server) InitRoutes(handler *handlers.Handler) *chi.Mux {
 	router.Post(`/`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.AddLink)))
 	router.Post(`/api/shorten`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.PostAddLink)))
 	router.Post(`/api/shorten/batch`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.PostAddBatchLink)))
+	router.Delete(`/api/user/urls`, middlewares.LogMiddleware(s.logger, http.HandlerFunc(handler.DeleteUserURLS)))
 
 	return router
 }

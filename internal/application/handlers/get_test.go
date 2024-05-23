@@ -62,7 +62,7 @@ func TestGetLinkByKey(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 
 			// создаем тестовую запись для БД
-			link, err := links.NewLink(test.dataKey, test.dataValue, 0)
+			link, err := links.NewLink(test.dataKey, test.dataValue, 0, false)
 			require.NoError(t, err)
 
 			// Добавляем в БД тестовую запись

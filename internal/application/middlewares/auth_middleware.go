@@ -20,7 +20,7 @@ type Claims struct {
 }
 
 const TokenEXP = time.Hour * 3
-const CookieName = "accessToken2"
+const CookieName = "accessToken"
 
 func AuthMiddleware(h http.Handler) http.Handler {
 	authFn := func(rw http.ResponseWriter, req *http.Request) {

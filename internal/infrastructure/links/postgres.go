@@ -97,7 +97,7 @@ func (r *PostgresRepository) AddLink(link *links.Link) error {
 	ctx1, cancel1 := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel1()
 
-	query := fmt.Sprintf("INSERT INTO links(link_key, link_url, user_id) VALUES ('%v', '%v', '%v')", link.Key(), link.URL(), link.UserID())
+	query := fmt.Sprintf("INSERT INTO links(link_key, link_url, user_id, deleted_flag) VALUES ('%v', '%v', '%v', '%v')", link.Key(), link.URL(), link.UserID(), link.DeletedFlag())
 	_, err := r.db.ExecContext(ctx1, query)
 	if err != nil {
 		// проверяем ошибку на предмет вставки URL который уже есть в БД
@@ -125,21 +125,22 @@ func (r *PostgresRepository) GetLinkByKey(key string) (*links.Link, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query := fmt.Sprintf("SELECT link_url, user_id FROM links WHERE link_key='%v'", key)
+	query := fmt.Sprintf("SELECT link_url, user_id, deleted_flag FROM links WHERE link_key='%v'", key)
 	row := r.db.QueryRowContext(ctx, query)
 
 	// в эту переменную будет сканиться результат запроса
 	var urlLink string
 	var userID int
+	var deletedFlag bool
 
-	err := row.Scan(&urlLink, &userID)
+	err := row.Scan(&urlLink, &userID, &deletedFlag)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// создаем объект ссылку и возвращаем ее
-	link, err := links.NewLink(key, urlLink, userID)
+	link, err := links.NewLink(key, urlLink, userID, deletedFlag)
 
 	if err != nil {
 		return nil, err
@@ -156,22 +157,23 @@ func (r *PostgresRepository) GetLinkByURL(URL string) (*links.Link, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query := fmt.Sprintf("SELECT link_key, user_id FROM links WHERE link_url='%v'", URL)
+	query := fmt.Sprintf("SELECT link_key, user_id, deleted_flag FROM links WHERE link_url='%v'", URL)
 	row := r.db.QueryRowContext(ctx, query)
 
 	// в эту переменную будет сканиться результат запроса
 
 	var urlKey string
 	var userID int
+	var deletedFlag bool
 
-	err := row.Scan(&urlKey, &userID)
+	err := row.Scan(&urlKey, &userID, &deletedFlag)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// создаем объект ссылку и возвращаем ее
-	link, err := links.NewLink(urlKey, URL, userID)
+	link, err := links.NewLink(urlKey, URL, userID, deletedFlag)
 
 	if err != nil {
 		return nil, err
@@ -197,8 +199,8 @@ func (r *PostgresRepository) AddLinkBatch(links []*links.Link) error {
 
 	// подготавливаю запрос для транзакции
 	stmt, err := r.db.PrepareContext(ctx,
-		"INSERT INTO links(link_key, link_url, user_id) "+
-			"VALUES ($1, $2, $3) ON CONFLICT DO NOTHING")
+		"INSERT INTO links(link_key, link_url, user_id, deleted_flag) "+
+			"VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING")
 	if err != nil {
 		return err
 	}
@@ -206,7 +208,7 @@ func (r *PostgresRepository) AddLinkBatch(links []*links.Link) error {
 
 	// добавляю запросы в транзакцю
 	for _, v := range links {
-		_, err := stmt.ExecContext(ctx, v.Key(), v.URL(), v.UserID())
+		_, err := stmt.ExecContext(ctx, v.Key(), v.URL(), v.UserID(), v.DeletedFlag())
 		if err != nil {
 			return err
 		}
@@ -225,7 +227,7 @@ func (r *PostgresRepository) GetLinksByUserID(userID int) (*[]links.Link, error)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query := fmt.Sprintf("SELECT link_url, link_key FROM links WHERE user_id='%v'", userID)
+	query := fmt.Sprintf("SELECT link_url, link_key, deleted_flag FROM links WHERE user_id='%v'", userID)
 	rows, err := r.db.QueryContext(ctx, query)
 
 	if err != nil {
@@ -239,17 +241,18 @@ func (r *PostgresRepository) GetLinksByUserID(userID int) (*[]links.Link, error)
 	// в эту переменную будет сканиться результат запроса
 	var urlLink string
 	var urlKey string
+	var deletedFlag bool
 
 	// пробегаем по всем записям
 	for rows.Next() {
-		err = rows.Scan(&urlLink, &urlKey)
+		err = rows.Scan(&urlLink, &urlKey, &deletedFlag)
 
 		if err != nil {
 			return nil, err
 		}
 
 		// создаем объект ссылку и возвращаем ее
-		link, err := links.NewLink(urlKey, urlLink, userID)
+		link, err := links.NewLink(urlKey, urlLink, userID, deletedFlag)
 
 		if err != nil {
 			return nil, err
@@ -259,6 +262,39 @@ func (r *PostgresRepository) GetLinksByUserID(userID int) (*[]links.Link, error)
 	}
 
 	return &arrLinks, nil
+}
+
+// меняем значение поля deleted_flag на true
+func (r *PostgresRepository) ChangeDeletedFlagByUserID(userID int, keys []string) error {
+
+	// создаю контекст для запроса
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var addString string
+
+	// переводим массив keys к строке вида ('text1'), ('text2'), ('text3')
+	for _, v := range keys {
+		addString = addString + fmt.Sprintf("('%v'),", v)
+	}
+
+	// убираем последнюю запятую
+	addString = addString[:len(addString)-1]
+
+	query := fmt.Sprintf("UPDATE links "+
+		"SET deleted_flag=TRUE "+
+		"FROM (VALUES "+
+		addString+
+		") AS data(key) "+
+		" WHERE links.user_id='%v' AND links.link_key=data.key", userID)
+
+	_, err := r.db.ExecContext(ctx, query)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // узнаем доступность базы данных

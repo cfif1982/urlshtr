@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -21,8 +20,6 @@ func (h *Handler) GetUserURLS(rw http.ResponseWriter, req *http.Request) {
 	if req.Context().Value(KeyUserID) != nil {
 		userID = req.Context().Value(KeyUserID).(int)
 	}
-
-	log.Printf("UserId=%v", userID)
 
 	// Если пользователь не авторизован, то выдаем собщение об этом
 	if userID == 0 {

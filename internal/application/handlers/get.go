@@ -19,11 +19,16 @@ func (h *Handler) GetLinkByKey(rw http.ResponseWriter, req *http.Request) {
 		h.logger.Info("link not found")
 		rw.WriteHeader(http.StatusInternalServerError)
 	} else {
+		// Если запись помецена на удаление то действия другие
+		if url.DeletedFlag() == true {
+			// устанавливаем код ответа 410
+			rw.WriteHeader(http.StatusGone)
+		} else {
+			// Устанавливаем заголовок ответа
+			rw.Header().Set("Location", url.URL())
 
-		// Устанавливаем заголовок ответа
-		rw.Header().Set("Location", url.URL())
-
-		// устанавливаем код ответа 307
-		rw.WriteHeader(http.StatusTemporaryRedirect)
+			// устанавливаем код ответа 307
+			rw.WriteHeader(http.StatusTemporaryRedirect)
+		}
 	}
 }
