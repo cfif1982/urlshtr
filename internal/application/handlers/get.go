@@ -20,7 +20,7 @@ func (h *Handler) GetLinkByKey(rw http.ResponseWriter, req *http.Request) {
 		rw.WriteHeader(http.StatusInternalServerError)
 	} else {
 		// Если запись помецена на удаление то действия другие
-		if url.DeletedFlag() == true {
+		if url.DeletedFlag() {
 			// устанавливаем код ответа 410
 			rw.WriteHeader(http.StatusGone)
 		} else {
