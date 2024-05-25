@@ -15,18 +15,20 @@ func (h *Handler) GetLinkByKey(rw http.ResponseWriter, req *http.Request) {
 	url, err := h.repo.GetLinkByKey(key)
 
 	// Если запись не найдена в БД
-	// да, мы это дело в 13 инкременте изучаем. Я тогда как дойду до него - исправлю
-	// TODO: исправить ошибку
-	// По хорошему стоит обрабатывать ошибку, что ссылка действительно просто не нашлась и тогда отдавать 404, но это должно быть дальше по курсу, вроде в 13-м инкременте
 	if err != nil {
 		h.logger.Info("link not found")
 		rw.WriteHeader(http.StatusInternalServerError)
 	} else {
+		// Если запись помецена на удаление то действия другие
+		if url.DeletedFlag() {
+			// устанавливаем код ответа 410
+			rw.WriteHeader(http.StatusGone)
+		} else {
+			// Устанавливаем заголовок ответа
+			rw.Header().Set("Location", url.URL())
 
-		// Устанавливаем заголовок ответа
-		rw.Header().Set("Location", url.URL())
-
-		// устанавливаем код ответа 307
-		rw.WriteHeader(http.StatusTemporaryRedirect)
+			// устанавливаем код ответа 307
+			rw.WriteHeader(http.StatusTemporaryRedirect)
+		}
 	}
 }

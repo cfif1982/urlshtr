@@ -25,3 +25,6 @@ vendor/
 # VS Code workspace file
 *.code-workspace
 requests.http
+send_data.txt
+receive_cookie.txt
+send_cookie.txt
