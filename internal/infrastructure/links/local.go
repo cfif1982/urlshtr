@@ -112,7 +112,7 @@ func (r *LocalRepository) GetLinkByURL(URL string) (*links.Link, error) {
 }
 
 // находим ссылки в БД по user id
-func (r *LocalRepository) GetLinksByUserID(userID int) (*[]links.Link, error) {
+func (r *LocalRepository) GetLinks(userID int) (*[]links.Link, error) {
 
 	arrLinks := make([]links.Link, 0)
 
@@ -133,7 +133,7 @@ func (r *LocalRepository) GetLinksByUserID(userID int) (*[]links.Link, error) {
 }
 
 // меняем значение поля deleted_flag на true
-func (r *LocalRepository) ChangeDeletedFlagByUserID(userID int, keys []string) error {
+func (r *LocalRepository) DeleteLinks(userID int, keys []string) error {
 
 	// перебираем переданные ключи для удаления
 	for _, key := range keys {

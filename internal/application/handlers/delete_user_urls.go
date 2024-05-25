@@ -38,8 +38,8 @@ func (h *Handler) DeleteUserURLS(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// запрос к БД - находим ссылку по ключу
-	err = h.repo.ChangeDeletedFlagByUserID(userID, keyStings)
+	// запрос к БД - удляем ссылку
+	err = h.repo.DeleteLinks(userID, keyStings)
 
 	if err != nil {
 		h.logger.Info(err.Error())
@@ -50,6 +50,6 @@ func (h *Handler) DeleteUserURLS(rw http.ResponseWriter, req *http.Request) {
 	// Устанавливаем в заголовке тип передаваемых данных
 	rw.Header().Set("Content-Type", "application/json")
 
-	// устанавливаем код 200
+	// устанавливаем код 202
 	rw.WriteHeader(http.StatusAccepted)
 }

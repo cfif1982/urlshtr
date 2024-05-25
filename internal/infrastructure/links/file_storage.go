@@ -219,7 +219,7 @@ func (r *FileRepository) GetLinkByURL(URL string) (*links.Link, error) {
 }
 
 // находим ссылки в БД по user id
-func (r *FileRepository) GetLinksByUserID(userID int) (*[]links.Link, error) {
+func (r *FileRepository) GetLinks(userID int) (*[]links.Link, error) {
 
 	// создаем БД
 	db := make([]FRLink, 0)
@@ -249,7 +249,7 @@ func (r *FileRepository) GetLinksByUserID(userID int) (*[]links.Link, error) {
 }
 
 // меняем значение поля deleted_flag на true
-func (r *FileRepository) ChangeDeletedFlagByUserID(userID int, keys []string) error {
+func (r *FileRepository) DeleteLinks(userID int, keys []string) error {
 
 	// создаем БД
 	db := make([]FRLink, 0)

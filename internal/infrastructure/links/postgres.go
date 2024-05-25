@@ -219,7 +219,7 @@ func (r *PostgresRepository) AddLinkBatch(links []*links.Link) error {
 }
 
 // находим ссылки в БД по user id
-func (r *PostgresRepository) GetLinksByUserID(userID int) (*[]links.Link, error) {
+func (r *PostgresRepository) GetLinks(userID int) (*[]links.Link, error) {
 
 	arrLinks := make([]links.Link, 0)
 
@@ -265,7 +265,7 @@ func (r *PostgresRepository) GetLinksByUserID(userID int) (*[]links.Link, error)
 }
 
 // меняем значение поля deleted_flag на true
-func (r *PostgresRepository) ChangeDeletedFlagByUserID(userID int, keys []string) error {
+func (r *PostgresRepository) DeleteLinks(userID int, keys []string) error {
 
 	// создаю контекст для запроса
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

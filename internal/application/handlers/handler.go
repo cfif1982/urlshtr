@@ -25,10 +25,10 @@ type RepositoryInterface interface {
 	GetLinkByURL(key string) (*links.Link, error)
 
 	// Найти ссылки в БД по user id
-	GetLinksByUserID(userID int) (*[]links.Link, error)
+	GetLinks(userID int) (*[]links.Link, error)
 
-	// меняем значение поля deleted_flag на true
-	ChangeDeletedFlagByUserID(userID int, keys []string) error
+	// меняем значение поля deleted_flag на true - т.е. удаляем ссылки
+	DeleteLinks(userID int, keys []string) error
 
 	// узнаем - доступна ли БД
 	Ping() error

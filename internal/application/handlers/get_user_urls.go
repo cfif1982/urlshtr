@@ -28,7 +28,7 @@ func (h *Handler) GetUserURLS(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// запрос к БД - находим ссылку по ключу
-	urls, err := h.repo.GetLinksByUserID(userID)
+	urls, err := h.repo.GetLinks(userID)
 
 	if err != nil {
 		h.logger.Info(err.Error())
